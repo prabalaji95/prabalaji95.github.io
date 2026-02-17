@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoodHub Data Analysis – AI Solutions Workflow</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #12151c;
+    --card: #1a1e28;
+    --border: #252a38;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,170,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,170,0.025) 1px, transparent 1px);
+    background-size: 44px 44px;
+    pointer-events: none; z-index: 0;
+  }
+
+  .wrapper {
+    position: relative; z-index: 1;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 52px 24px 88px;
+  }
+
+  /* ── Header ── */
+  .header { text-align: center; margin-bottom: 16px; animation: fadeDown 0.7s ease both; }
+
+  .header .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 10px; letter-spacing: 0.28em;
+    color: #00d4aa; text-transform: uppercase;
+    margin-bottom: 16px; padding: 6px 16px;
+    border: 1px solid rgba(0,212,170,0.25); border-radius: 20px;
+    background: rgba(0,212,170,0.05);
+  }
+
+  .header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(24px, 4vw, 42px);
+    font-weight: 800; line-height: 1.1;
+    background: linear-gradient(130deg, #fff 20%, #a5f3e8 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin-bottom: 12px;
+  }
+
+  .header p { color: var(--muted); font-size: 12px; max-width: 600px; margin: 0 auto; line-height: 1.7; }
+
+  /* ── Context banner ── */
+  .context-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 32px 0 48px;
+    animation: fadeUp 0.6s ease 0.1s both;
+  }
+
+  .ctx-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+
+  .ctx-label {
+    font-size: 9px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .ctx-val {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 13px; color: var(--text);
+    line-height: 1.3;
+  }
+
+  /* ── Flow ── */
+  .flow { display: flex; flex-direction: column; }
+
+  .phase { animation: fadeUp 0.55s ease both; }
+  .phase:nth-child(1) { animation-delay: 0.1s; }
+  .phase:nth-child(2) { animation-delay: 0.18s; }
+  .phase:nth-child(3) { animation-delay: 0.26s; }
+  .phase:nth-child(4) { animation-delay: 0.34s; }
+  .phase:nth-child(5) { animation-delay: 0.42s; }
+
+  .phase-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.28s ease;
+    position: relative; overflow: hidden;
+  }
+
+  .phase-card::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 4px; background: var(--phase-color);
+    transition: width 0.28s ease;
+  }
+
+  .phase-card:hover { border-color: var(--phase-color); transform: translateX(5px); box-shadow: -5px 0 28px rgba(0,0,0,0.35), 0 0 36px -12px var(--phase-color); }
+  .phase-card:hover::before, .phase-card.open::before { width: 6px; }
+  .phase-card.open { border-color: var(--phase-color); box-shadow: 0 0 38px -12px var(--phase-color); }
+
+  .phase-header {
+    display: flex; align-items: center; gap: 16px;
+    padding: 26px 28px;
+  }
+
+  .phase-num {
+    width: 42px; height: 42px; border-radius: 10px;
+    background: var(--phase-color);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 15px;
+    color: #000; flex-shrink: 0;
+  }
+
+  .phase-title-block { flex: 1; }
+
+  .phase-tag {
+    font-size: 9.5px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--phase-color);
+    margin-bottom: 4px;
+  }
+
+  .phase-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 16px; color: var(--text);
+  }
+
+  .phase-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+  .phase-pill {
+    font-size: 10px; padding: 3px 9px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--muted); transition: all 0.2s;
+  }
+
+  .phase-card:hover .phase-pill, .phase-card.open .phase-pill {
+    border-color: var(--phase-color); color: var(--text);
+    background: rgba(255,255,255,0.06);
+  }
+
+  .phase-toggle {
+    width: 30px; height: 30px; border-radius: 7px;
+    border: 1px solid var(--border); background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.28s ease; flex-shrink: 0;
+  }
+
+  .phase-card.open .phase-toggle { background: var(--phase-color); border-color: var(--phase-color); transform: rotate(45deg); }
+  .phase-toggle svg { width: 11px; height: 11px; stroke: var(--muted); fill: none; transition: stroke 0.2s; }
+  .phase-card:hover .phase-toggle svg { stroke: var(--text); }
+  .phase-card.open .phase-toggle svg { stroke: #000; }
+
+  .phase-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.4s ease; }
+  .phase-card.open .phase-body { grid-template-rows: 1fr; }
+  .phase-body-inner { overflow: hidden; }
+
+  .divider { height: 1px; background: var(--border); margin: 0 28px; }
+
+  /* Three-column layout for main content */
+  .phase-content {
+    padding: 20px 28px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 18px;
+  }
+
+  .section-label {
+    font-size: 9.5px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .substep {
+    display: flex; align-items: flex-start; gap: 9px;
+    padding: 9px 12px;
+    background: var(--surface); border-radius: 8px;
+    margin-bottom: 7px; border: 1px solid var(--border);
+    font-size: 11px; line-height: 1.55;
+    transition: border-color 0.2s;
+  }
+  .substep:hover { border-color: var(--phase-color); }
+  .substep-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--phase-color); margin-top: 4px; flex-shrink: 0; }
+
+  /* Code snippets */
+  .code-block {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 10px 13px;
+    margin-bottom: 7px;
+    font-size: 10.5px;
+    line-height: 1.6;
+    color: #79c0ff;
+    overflow-x: auto;
+  }
+
+  .code-block .cm { color: #8b949e; }
+  .code-block .kw { color: #ff7b72; }
+  .code-block .fn { color: #d2a8ff; }
+  .code-block .st { color: #a5d6ff; }
+  .code-block .nm { color: #79c0ff; }
+
+  .decision {
+    display: flex; align-items: flex-start; gap: 9px;
+    padding: 9px 12px;
+    background: rgba(245,158,11,0.05);
+    border: 1px solid rgba(245,158,11,0.18);
+    border-radius: 8px; margin-bottom: 7px;
+    font-size: 11px; line-height: 1.55;
+  }
+  .d-icon { font-size: 11px; flex-shrink: 0; margin-top: 2px; color: #f59e0b; }
+
+  .output-row { padding: 14px 28px 20px; }
+  .output-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+  .output-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 12px;
+    background: rgba(0,212,170,0.07);
+    border: 1px solid rgba(0,212,170,0.2);
+    border-radius: 20px; font-size: 11px; color: #00d4aa;
+  }
+
+  /* Connector */
+  .connector { display: flex; flex-direction: column; align-items: center; padding: 4px 0; }
+  .connector-line { width: 2px; height: 22px; background: linear-gradient(to bottom, var(--from-color), var(--to-color)); }
+  .connector-arrow { width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 8px solid var(--to-color); }
+
+  /* Legend */
+  .legend { display: flex; justify-content: center; gap: 28px; margin-top: 52px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); }
+  .l-dot { width: 8px; height: 8px; border-radius: 2px; }
+  .l-code { width: 16px; height: 8px; border-radius: 2px; background: #0d1117; border: 1px solid #30363d; }
+  .l-diamond { width: 9px; height: 9px; background: rgba(245,158,11,0.45); transform: rotate(45deg); border: 1px solid rgba(245,158,11,0.6); border-radius: 1px; }
+  .l-tag { width: 16px; height: 8px; border-radius: 8px; background: rgba(0,212,170,0.3); border: 1px solid rgba(0,212,170,0.5); }
+
+  @keyframes fadeDown { from { opacity:0; transform:translateY(-18px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeUp   { from { opacity:0; transform:translateY(18px);  } to { opacity:1; transform:translateY(0); } }
+
+  @media (max-width: 800px) {
+    .phase-content { grid-template-columns: 1fr; }
+    .context-bar { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 480px) {
+    .context-bar { grid-template-columns: 1fr; }
+  }
+
+  /* ── Back to Portfolio ── */
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-decoration: none;
+    padding: 7px 14px 7px 10px;
+    border: 1px solid rgba(0,212,170,0.25);
+    border-radius: 20px;
+    background: rgba(0,212,170,0.05);
+    margin-bottom: 32px;
+    transition: all 0.2s ease;
+    font-family: 'DM Mono', monospace;
+  }
+  .back-btn:hover {
+    background: rgba(0,212,170,0.12);
+    border-color: rgba(0,212,170,0.55);
+    color: var(--accent);
+    transform: translateX(-3px);
+  }
+  .back-btn svg {
+    width: 12px; height: 12px;
+    stroke: var(--accent);
+    fill: none;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+  .back-btn:hover svg { transform: translateX(-2px); }
+
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <a class="back-btn" href="ai-solutions-portfolio.html">
+    <svg viewBox="0 0 12 12"><line x1="11" y1="6" x2="1" y2="6"/><polyline points="5,2 1,6 5,10"/></svg>
+    Back to Portfolio
+  </a>
+
+
+  <div class="header">
+    <div class="eyebrow">● UT Austin PGPAIML · Python Foundations Project</div>
+    <h1>FoodHub Data Analysis<br>Through the AI Solutions Lens</h1>
+    <p>Mapping an exploratory data analysis project onto a structured AI solutions workflow — from stakeholder requirements through actionable business recommendations.</p>
+  </div>
+
+  <!-- Context bar -->
+  <div class="context-bar">
+    <div class="ctx-card">
+      <div class="ctx-label">Client / Company</div>
+      <div class="ctx-val">FoodHub (NYC Food Aggregator)</div>
+    </div>
+    <div class="ctx-card">
+      <div class="ctx-label">Dataset</div>
+      <div class="ctx-val">Online Order History · 9 Variables</div>
+    </div>
+    <div class="ctx-card">
+      <div class="ctx-label">Method</div>
+      <div class="ctx-val">Exploratory Data Analysis (EDA)</div>
+    </div>
+    <div class="ctx-card">
+      <div class="ctx-label">Business Goal</div>
+      <div class="ctx-val">Demand Analysis · CX Improvement</div>
+    </div>
+  </div>
+
+  <div class="flow" id="flow"></div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="l-dot" style="background:#00d4aa"></div>Process Step</div>
+    <div class="legend-item"><div class="l-code"></div>Code Reference</div>
+    <div class="legend-item"><div class="l-diamond"></div>Decision Gate</div>
+    <div class="legend-item"><div class="l-tag"></div>Output / Deliverable</div>
+  </div>
+
+</div>
+
+<script>
+const phases = [
+  {
+    num: "01",
+    tag: "Phase One",
+    title: "Requirements Gathering & Stakeholder Questions",
+    color: "#00d4aa",
+    pills: ["Business Context", "Data Dictionary", "Key Questions"],
+    steps: [
+      "Engage FoodHub data science team to understand the business problem: how to analyze restaurant demand to improve customer experience",
+      "Document stakeholder-defined questions covering orders, ratings, cuisine types, cost, and delivery time",
+      "Review the data dictionary: 9 variables spanning order ID, customer ID, restaurant, cuisine, cost, day, rating, prep time, delivery time",
+      "Identify the analytical scope: univariate distributions, multivariate relationships, revenue modeling, and time-based segmentation",
+      "Confirm success criteria — answers to 17 specific business questions with conclusions and recommendations"
+    ],
+    code: [
+      `<span class="cm"># Load data and inspect structure</span>\n<span class="nm">df</span> = <span class="fn">pd.read_csv</span>(<span class="st">'foodhub_order.csv'</span>)\n<span class="nm">df</span>.<span class="fn">head</span>() <span class="cm"># Preview first 5 rows</span>`,
+      `<span class="cm"># Understand shape and types</span>\n<span class="nm">df</span>.<span class="nm">shape</span>  <span class="cm"># Q1: rows & columns</span>\n<span class="nm">df</span>.<span class="fn">info</span>()  <span class="cm"># Q2: datatypes</span>`
+    ],
+    decisions: [
+      "Are all 9 data fields present and populated? → If missing columns exist, flag before analysis begins",
+      "Does the dataset cover a sufficient time range and order volume to answer demand questions? → If too sparse, note limitations in conclusions"
+    ],
+    outputs: ["Stakeholder Question Log (Q1–Q17)", "Data Dictionary Review", "Analytical Scope Definition"]
+  },
+  {
+    num: "02",
+    tag: "Phase Two",
+    title: "Problem Framing & Feasibility Assessment",
+    color: "#6c63ff",
+    pills: ["EDA Scoping", "Data Quality", "Missing Values"],
+    steps: [
+      "Frame the core analytical problems: restaurant demand distribution, delivery performance, pricing behavior, and customer rating patterns",
+      "Assess data quality — check for null values across all columns, identify that 'rating' has 'Not given' entries requiring special handling",
+      "Evaluate feasibility of each analysis: numerical columns support histograms/boxplots; categorical columns support countplots and groupby aggregations",
+      "Segment the problem into three analysis tracks: univariate distributions, multivariate relationships, and business metric calculations",
+      "Define statistical summary benchmarks — min/avg/max for food prep time and delivery time establish baseline performance expectations"
+    ],
+    code: [
+      `<span class="cm"># Q3: Check for missing values</span>\n<span class="nm">df</span>.<span class="fn">isnull</span>().<span class="fn">sum</span>()`,
+      `<span class="cm"># Q4: Statistical summary</span>\n<span class="nm">df</span>.<span class="fn">describe</span>()\n<span class="cm"># Q5: Unrated orders</span>\n<span class="nm">df</span>[<span class="st">'rating'</span>].<span class="fn">value_counts</span>()`
+    ],
+    decisions: [
+      "Are missing values significant enough to skew analysis? → If yes, apply imputation or exclude from specific analyses and document the decision",
+      "Is the 'Not given' rating category a data gap or a meaningful business signal? → Treat as a distinct segment, not missing data — indicates unrated orders"
+    ],
+    outputs: ["Data Quality Report", "Missing Value Treatment Decision", "Analysis Track Definition", "Statistical Summary (Q4)"]
+  },
+  {
+    num: "03",
+    tag: "Phase Three",
+    title: "Solution Mapping — Exploratory Data Analysis",
+    color: "#f59e0b",
+    pills: ["Univariate EDA", "Multivariate EDA", "Correlation"],
+    steps: [
+      "Univariate analysis: plot distributions for cost (histogram + boxplot), cuisine type (countplot), day of week, rating, food prep time, and delivery time",
+      "Identify top 5 restaurants by order volume and top cuisines ordered on weekends — actionable for marketing and inventory decisions",
+      "Multivariate analysis: boxplots for cuisine vs. cost and cuisine vs. prep time; pointplots for rating vs. delivery time, rating vs. prep time, rating vs. cost",
+      "Revenue segmentation: group by restaurant to identify top revenue generators; analyze weekday vs. weekend delivery time differences",
+      "Correlation heatmap across the three key numerical variables: cost_of_the_order, food_preparation_time, delivery_time"
+    ],
+    code: [
+      `<span class="cm"># Cuisine demand visualization</span>\n<span class="fn">sns.countplot</span>(<span class="nm">data</span>=<span class="nm">df</span>, <span class="nm">x</span>=<span class="st">'cuisine_type'</span>)\n\n<span class="cm"># Rating vs. delivery time</span>\n<span class="fn">sns.pointplot</span>(<span class="nm">x</span>=<span class="st">'rating'</span>, <span class="nm">y</span>=<span class="st">'delivery_time'</span>, <span class="nm">data</span>=<span class="nm">df</span>)`,
+      `<span class="cm"># Correlation heatmap</span>\n<span class="nm">col_list</span> = [<span class="st">'cost_of_the_order'</span>, <span class="st">'food_preparation_time'</span>, <span class="st">'delivery_time'</span>]\n<span class="fn">sns.heatmap</span>(<span class="nm">df</span>[<span class="nm">col_list</span>].<span class="fn">corr</span>(), <span class="nm">annot</span>=<span class="kw">True</span>)`
+    ],
+    decisions: [
+      "Do any variables show extreme skew or outliers in boxplots? → Document and note impact on mean-based metrics vs. median-based recommendations",
+      "Do multivariate patterns reveal actionable signals (e.g., cuisine types with poor ratings and long prep times)? → If yes, escalate to recommendations layer in Phase 5"
+    ],
+    outputs: ["Univariate Distribution Charts (Q6)", "Top 5 Restaurants by Orders (Q7)", "Weekend Cuisine Analysis (Q8)", "Multivariate Relationship Charts (Q12)", "Correlation Heatmap"]
+  },
+  {
+    num: "04",
+    tag: "Phase Four",
+    title: "Business Metric Specs & Analytical Deliverables",
+    color: "#3b82f6",
+    pills: ["Revenue Model", "Promo Criteria", "Delivery Thresholds"],
+    steps: [
+      "Spec out and implement the revenue calculation model: 25% margin on orders > $20, 15% on orders > $5, 0% otherwise — applied via custom function across all orders",
+      "Define and execute promotional eligibility criteria: restaurants with rating count > 50 AND average rating > 4 qualify for advertisement offers (Q13)",
+      "Calculate cost threshold metrics: percentage of orders > $20 (Q9) and total delivery time > 60 minutes (Q15) — key SLA benchmarks",
+      "Identify top 5 most frequent customers for 20% discount voucher campaign — actionable loyalty program input (Q11)",
+      "Segment mean delivery time by weekday vs. weekend — baseline for operational benchmarking and SLA target-setting (Q16)"
+    ],
+    code: [
+      `<span class="cm"># Revenue model function</span>\n<span class="kw">def</span> <span class="fn">compute_rev</span>(<span class="nm">x</span>):\n    <span class="kw">if</span> <span class="nm">x</span> > <span class="nm">20</span>: <span class="kw">return</span> <span class="nm">x</span>*<span class="nm">0.25</span>\n    <span class="kw">elif</span> <span class="nm">x</span> > <span class="nm">5</span>: <span class="kw">return</span> <span class="nm">x</span>*<span class="nm">0.15</span>\n    <span class="kw">else</span>: <span class="kw">return</span> <span class="nm">0</span>\n<span class="nm">df</span>[<span class="st">'Revenue'</span>] = <span class="nm">df</span>[<span class="st">'cost_of_the_order'</span>].<span class="fn">apply</span>(<span class="nm">compute_rev</span>)`,
+      `<span class="cm"># Promo eligibility filter (Q13)</span>\n<span class="nm">df_rated</span> = <span class="nm">df</span>[<span class="nm">df</span>[<span class="st">'rating'</span>] != <span class="st">'Not given'</span>].<span class="fn">copy</span>()\n<span class="nm">df_rated</span>[<span class="st">'rating'</span>] = <span class="nm">df_rated</span>[<span class="st">'rating'</span>].<span class="fn">astype</span>(<span class="st">'int'</span>)\n<span class="cm"># Group → filter count >50 → mean >4</span>`
+    ],
+    decisions: [
+      "Do revenue model results align with business expectations? → Validate total net revenue figure against known company financial data before using in executive reports",
+      "Are promotional eligibility criteria producing a meaningful candidate list? → If too few or too many qualify, revisit threshold calibration with stakeholders"
+    ],
+    outputs: ["Net Revenue Calculation (Q14)", "Promotional Restaurant List (Q13)", "High-Cost Order % (Q9)", "60-Min Delivery Breach % (Q15)", "Top Customer ID List (Q11)", "Weekday vs. Weekend Delivery Comparison (Q16)"]
+  },
+  {
+    num: "05",
+    tag: "Phase Five",
+    title: "Conclusions, Recommendations & Roadmap Influence",
+    color: "#ef4444",
+    pills: ["Business Insights", "CX Recommendations", "Product Roadmap"],
+    steps: [
+      "Synthesize EDA findings into executive-ready conclusions: which cuisines drive demand, which restaurants underperform on prep time, and where delivery SLAs are being breached",
+      "Formulate targeted recommendations: incentivize high-rated restaurants, address underperforming prep times for specific cuisine types, optimize weekend delivery staffing",
+      "Translate customer rating patterns into CX improvement levers — e.g., if delivery time negatively correlates with rating, define a delivery time SLA that maximizes rating probability",
+      "Feed top-restaurant and top-customer data back into marketing and loyalty program strategy — discount voucher targeting and promotional ad placement",
+      "Identify gaps requiring further analysis: predictive demand modeling, real-time delivery time forecasting, NLP on unstructured customer feedback — inputs to the next project phase"
+    ],
+    code: [
+      `<span class="cm"># Weekday vs. weekend delivery comparison</span>\n<span class="fn">print</span>(<span class="nm">df</span>[<span class="nm">df</span>[<span class="st">'day_of_the_week'</span>]==<span class="st">'Weekday'</span>][<span class="st">'delivery_time'</span>].<span class="fn">mean</span>())\n<span class="fn">print</span>(<span class="nm">df</span>[<span class="nm">df</span>[<span class="st">'day_of_the_week'</span>]==<span class="st">'Weekend'</span>][<span class="st">'delivery_time'</span>].<span class="fn">mean</span>())`,
+      `<span class="cm"># Total time SLA breach analysis (Q15)</span>\n<span class="nm">df</span>[<span class="st">'total_time'</span>] = <span class="nm">df</span>[<span class="st">'food_preparation_time'</span>] + <span class="nm">df</span>[<span class="st">'delivery_time'</span>]\n<span class="cm"># % of orders > 60 min total</span>`
+    ],
+    decisions: [
+      "Do the EDA findings support actionable business decisions, or do they surface new unknowns? → If new unknowns emerge, define follow-on analytical questions for the next sprint",
+      "Are recommendations scoped to what the current dataset can support? → Avoid overfitting insights to the data — flag where predictive modeling would add more certainty"
+    ],
+    outputs: ["Executive Conclusions & Recommendations (Q17)", "CX Improvement Action Items", "Marketing & Loyalty Program Inputs", "Follow-On ML Use Case Backlog"]
+  }
+];
+
+const connectors = [
+  { from: '#00d4aa', to: '#6c63ff' },
+  { from: '#6c63ff', to: '#f59e0b' },
+  { from: '#f59e0b', to: '#3b82f6' },
+  { from: '#3b82f6', to: '#ef4444' },
+];
+
+const flow = document.getElementById('flow');
+
+phases.forEach((phase, i) => {
+  const phaseEl = document.createElement('div');
+  phaseEl.className = 'phase';
+  phaseEl.innerHTML = `
+    <div class="phase-card" style="--phase-color:${phase.color}" id="phase-${i}">
+      <div class="phase-header">
+        <div class="phase-num">${phase.num}</div>
+        <div class="phase-title-block">
+          <div class="phase-tag">${phase.tag}</div>
+          <div class="phase-title">${phase.title}</div>
+          <div class="phase-pills">${phase.pills.map(p => `<span class="phase-pill">${p}</span>`).join('')}</div>
+        </div>
+        <div class="phase-toggle">
+          <svg viewBox="0 0 12 12"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+        </div>
+      </div>
+
+      <div class="phase-body">
+        <div class="phase-body-inner">
+          <div class="divider"></div>
+          <div class="phase-content">
+            <!-- Steps -->
+            <div>
+              <div class="section-label">Process Steps</div>
+              ${phase.steps.map(s => `<div class="substep"><div class="substep-dot"></div><span>${s}</span></div>`).join('')}
+            </div>
+            <!-- Code -->
+            <div>
+              <div class="section-label">Code Reference</div>
+              ${phase.code.map(c => `<div class="code-block">${c}</div>`).join('')}
+              <div class="divider" style="margin:14px 0;background:var(--border)"></div>
+              <div class="section-label">Decision Gates</div>
+              ${phase.decisions.map(d => `<div class="decision"><div class="d-icon">◆</div><span>${d}</span></div>`).join('')}
+            </div>
+            <!-- Placeholder for balance -->
+            <div style="display:none"></div>
+          </div>
+          <div class="divider"></div>
+          <div class="output-row">
+            <div class="section-label">Phase Outputs & Deliverables</div>
+            <div class="output-tags">${phase.outputs.map(o => `<span class="output-tag">→ ${o}</span>`).join('')}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  phaseEl.querySelector('.phase-card').addEventListener('click', function () {
+    const isOpen = this.classList.contains('open');
+    document.querySelectorAll('.phase-card').forEach(c => c.classList.remove('open'));
+    if (!isOpen) this.classList.add('open');
+  });
+
+  flow.appendChild(phaseEl);
+
+  if (i < phases.length - 1) {
+    const c = connectors[i];
+    const conn = document.createElement('div');
+    conn.className = 'connector';
+    conn.innerHTML = `
+      <div class="connector-line" style="--from-color:${c.from};--to-color:${c.to}"></div>
+      <div class="connector-arrow" style="--to-color:${c.to}"></div>
+    `;
+    flow.appendChild(conn);
+  }
+});
+
+document.getElementById('phase-0').classList.add('open');
+</script>
+</body>
+</html>

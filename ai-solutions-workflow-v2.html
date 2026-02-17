@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Solutions Assessment Workflow – CBIZ</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #12151c;
+    --card: #1a1e28;
+    --border: #252a38;
+    --accent: #00d4aa;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,170,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,170,0.025) 1px, transparent 1px);
+    background-size: 44px 44px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 52px 24px 88px;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 56px;
+    animation: fadeDown 0.7s ease both;
+  }
+
+  .header .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    padding: 6px 14px;
+    border: 1px solid rgba(0,212,170,0.25);
+    border-radius: 20px;
+    background: rgba(0,212,170,0.05);
+  }
+
+  .header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(26px, 4.5vw, 44px);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(130deg, #fff 20%, #a5f3e8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 14px;
+  }
+
+  .header p {
+    color: var(--muted);
+    font-size: 12.5px;
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* ── Phase flow ── */
+  .flow { display: flex; flex-direction: column; }
+
+  .phase { animation: fadeUp 0.55s ease both; }
+  .phase:nth-child(1) { animation-delay: 0.08s; }
+  .phase:nth-child(2) { animation-delay: 0.16s; }
+  .phase:nth-child(3) { animation-delay: 0.24s; }
+  .phase:nth-child(4) { animation-delay: 0.32s; }
+  .phase:nth-child(5) { animation-delay: 0.40s; }
+
+  .phase-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.28s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Colored left bar */
+  .phase-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--phase-color);
+    transition: width 0.28s ease;
+  }
+
+  .phase-card:hover { border-color: var(--phase-color); transform: translateX(5px); box-shadow: -5px 0 28px rgba(0,0,0,0.35), 0 0 36px -12px var(--phase-color); }
+  .phase-card:hover::before, .phase-card.open::before { width: 6px; }
+  .phase-card.open { border-color: var(--phase-color); box-shadow: 0 0 38px -12px var(--phase-color); }
+
+  /* Collapsed header */
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 26px 28px;
+  }
+
+  .phase-num {
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    background: var(--phase-color);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 15px;
+    color: #000; flex-shrink: 0;
+  }
+
+  .phase-title-block { flex: 1; }
+
+  .phase-tag {
+    font-size: 9.5px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--phase-color);
+    margin-bottom: 4px;
+  }
+
+  .phase-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 16px;
+    color: var(--text);
+  }
+
+  /* Pills on collapsed view */
+  .phase-pills {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-top: 8px;
+  }
+
+  .phase-pill {
+    font-size: 10px;
+    padding: 3px 9px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+
+  .phase-card:hover .phase-pill, .phase-card.open .phase-pill {
+    border-color: var(--phase-color);
+    color: var(--text);
+    background: rgba(255,255,255,0.06);
+  }
+
+  .phase-toggle {
+    width: 30px; height: 30px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.28s ease;
+    flex-shrink: 0;
+  }
+
+  .phase-card.open .phase-toggle {
+    background: var(--phase-color);
+    border-color: var(--phase-color);
+    transform: rotate(45deg);
+  }
+
+  .phase-toggle svg { width: 11px; height: 11px; stroke: var(--muted); fill: none; transition: stroke 0.2s; }
+  .phase-card:hover .phase-toggle svg { stroke: var(--text); }
+  .phase-card.open .phase-toggle svg { stroke: #000; }
+
+  /* Expandable body */
+  .phase-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.4s ease; }
+  .phase-card.open .phase-body { grid-template-rows: 1fr; }
+  .phase-body-inner { overflow: hidden; }
+
+  .phase-content {
+    padding: 0 28px 28px;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 20px;
+  }
+
+  .section-label {
+    font-size: 9.5px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 11px;
+  }
+
+  /* Sub-steps */
+  .substep {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 13px;
+    background: var(--surface);
+    border-radius: 8px; margin-bottom: 7px;
+    border: 1px solid var(--border);
+    font-size: 11.5px; line-height: 1.55;
+    transition: border-color 0.2s;
+  }
+  .substep:hover { border-color: var(--phase-color); }
+
+  .substep-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--phase-color);
+    margin-top: 5px; flex-shrink: 0;
+  }
+
+  /* Decision points */
+  .decision {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 13px;
+    background: rgba(245,158,11,0.05);
+    border: 1px solid rgba(245,158,11,0.18);
+    border-radius: 8px; margin-bottom: 7px;
+    font-size: 11.5px; line-height: 1.55;
+  }
+  .d-icon { font-size: 12px; flex-shrink: 0; margin-top: 2px; color: #f59e0b; }
+
+  /* Divider */
+  .divider { height: 1px; background: var(--border); margin: 0 28px; }
+
+  /* Output row */
+  .output-row { padding: 16px 28px 20px; }
+  .output-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+  .output-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 12px;
+    background: rgba(0,212,170,0.07);
+    border: 1px solid rgba(0,212,170,0.2);
+    border-radius: 20px;
+    font-size: 11px; color: var(--accent);
+  }
+
+  /* Connector */
+  .connector { display: flex; flex-direction: column; align-items: center; padding: 4px 0; }
+  .connector-line { width: 2px; height: 22px; background: linear-gradient(to bottom, var(--from-color), var(--to-color)); }
+  .connector-arrow { width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 8px solid var(--to-color); }
+
+  /* Legend */
+  .legend {
+    display: flex; justify-content: center;
+    gap: 28px; margin-top: 52px; flex-wrap: wrap;
+  }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); }
+  .l-dot { width: 8px; height: 8px; border-radius: 2px; }
+  .l-diamond { width: 9px; height: 9px; background: rgba(245,158,11,0.45); transform: rotate(45deg); border: 1px solid rgba(245,158,11,0.6); border-radius: 1px; }
+  .l-tag { width: 16px; height: 8px; border-radius: 8px; background: rgba(0,212,170,0.3); border: 1px solid rgba(0,212,170,0.5); }
+
+  @keyframes fadeDown { from { opacity:0; transform:translateY(-18px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeUp   { from { opacity:0; transform:translateY(18px);  } to { opacity:1; transform:translateY(0); } }
+
+  @media (max-width: 650px) {
+    .phase-content { grid-template-columns: 1fr; }
+    .phase-header { padding: 20px; }
+    .phase-content { padding: 0 20px 20px; }
+    .divider { margin: 0 20px; }
+    .output-row { padding: 14px 20px 18px; }
+  }
+
+  /* ── Back to Portfolio ── */
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-decoration: none;
+    padding: 7px 14px 7px 10px;
+    border: 1px solid rgba(0,212,170,0.25);
+    border-radius: 20px;
+    background: rgba(0,212,170,0.05);
+    margin-bottom: 32px;
+    transition: all 0.2s ease;
+    font-family: 'DM Mono', monospace;
+  }
+  .back-btn:hover {
+    background: rgba(0,212,170,0.12);
+    border-color: rgba(0,212,170,0.55);
+    color: var(--accent);
+    transform: translateX(-3px);
+  }
+  .back-btn svg {
+    width: 12px; height: 12px;
+    stroke: var(--accent);
+    fill: none;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+  .back-btn:hover svg { transform: translateX(-2px); }
+
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <a class="back-btn" href="ai-solutions-portfolio.html">
+    <svg viewBox="0 0 12 12"><line x1="11" y1="6" x2="1" y2="6"/><polyline points="5,2 1,6 5,10"/></svg>
+    Back to Portfolio
+  </a>
+
+
+  <div class="header">
+    <div class="eyebrow">● CBIZ AI Solutions Specialist · Process Framework</div>
+    <h1>AI Solutions Assessment<br>& Delivery Workflow</h1>
+    <p>A consultative methodology for identifying, validating, and delivering AI agents and applications — from stakeholder requirements through dev team handoff and KPI-driven feedback.</p>
+  </div>
+
+  <div class="flow" id="flow"></div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="l-dot" style="background:#00d4aa"></div>Sub-step</div>
+    <div class="legend-item"><div class="l-diamond"></div>Decision Gate</div>
+    <div class="legend-item"><div class="l-tag"></div>Phase Output / Deliverable</div>
+  </div>
+
+</div>
+
+<script>
+const phases = [
+  {
+    num: "01",
+    tag: "Phase One",
+    title: "Requirements Gathering & Stakeholder Interviews",
+    color: "#00d4aa",
+    pills: ["Discovery", "Process Mapping", "Data Audit"],
+    substeps: [
+      "Schedule and conduct consultative discovery sessions with service line stakeholders (tax, audit, benefits) to understand current-state workflows and pain points",
+      "Document objectives, success criteria, and KPIs the business unit cares about — framed around client and business outcomes, not technology",
+      "Map existing processes end-to-end: identify manual, repetitive, or high-error-rate tasks most likely to benefit from AI agents",
+      "Audit available data sources, document systems, and existing tool integrations (e.g., ERP, CRM, portals) relevant to the use case",
+      "Capture change management concerns and assess stakeholder readiness for AI adoption"
+    ],
+    decisions: [
+      "Are stakeholders aligned on problem scope and expected outcomes? → If no, escalate to project sponsor and re-scope before proceeding",
+      "Is data available, accessible, and of sufficient quality to support an AI approach? → If no, flag data readiness gaps and define remediation path"
+    ],
+    outputs: ["Stakeholder Discovery Report", "Current-State Process Map", "KPI & Success Metrics Definition", "Data & Systems Inventory"]
+  },
+  {
+    num: "02",
+    tag: "Phase Two",
+    title: "Problem Framing & AI Feasibility Assessment",
+    color: "#6c63ff",
+    pills: ["Use Case Validation", "Prioritization", "ROI Framing"],
+    substeps: [
+      "Reframe raw business pain points into structured AI problem statements — specify the task, required input/output, and human-in-the-loop needs",
+      "Classify problem type: document extraction, classification, summarization, reasoning/Q&A, agentic automation, or orchestrated multi-step workflow",
+      "Score each use case on an Impact vs. Effort matrix, weighted by strategic priority, data readiness, and compliance risk",
+      "Assess LLM or agent feasibility: evaluate prompt complexity, context length requirements, tool-use needs, and latency constraints",
+      "Build the business case narrative — quantify time savings, error reduction, or client experience gains for non-technical stakeholder buy-in"
+    ],
+    decisions: [
+      "Is the use case technically feasible with current data and available LLM/agent capabilities? → If no, deprioritize or define a pre-requisite data/infra workstream",
+      "Does expected ROI justify AI over simpler RPA or rules-based automation? → If unclear, run a rapid prompt prototype before committing to full build"
+    ],
+    outputs: ["AI Problem Statement Document", "Feasibility & Priority Score Card", "Impact vs. Effort Matrix", "Business Case Summary"]
+  },
+  {
+    num: "03",
+    tag: "Phase Three",
+    title: "AI Solution Mapping & Agent/Prompt Design",
+    color: "#f59e0b",
+    pills: ["Prompt Engineering", "Agent Design", "Tool Selection"],
+    substeps: [
+      "Design prompt and context architecture: define system prompts, few-shot examples, retrieval context (RAG), and tool-calling structure for each use case",
+      "Determine agent orchestration model: single-agent with tools, multi-agent pipeline, or human-in-the-loop hybrid — document decision rationale",
+      "Evaluate build vs. integrate: assess CBIZ's existing AI platforms, third-party APIs (OpenAI, Gemini, Copilot), and MCP-compatible tooling",
+      "Prototype and red-team prompts/agents in sandbox environment — test for accuracy, hallucination risk, edge cases, and compliance exposure",
+      "Review security, data privacy, and regulatory constraints critical for tax and financial services (PII handling, audit trails, data residency)"
+    ],
+    decisions: [
+      "Does the prototype meet minimum quality thresholds for accuracy and reliability? → If no, iterate on context engineering before advancing to build phase",
+      "Are there unresolved compliance or data privacy blockers? → If yes, engage legal/compliance and pause build until cleared"
+    ],
+    outputs: ["Prompt & Context Design Spec", "Agent Architecture Diagram", "Vendor / Platform Evaluation Summary", "Prototype Demo & Red-Team Results"]
+  },
+  {
+    num: "04",
+    tag: "Phase Four",
+    title: "Workflow & Technical Spec Creation for Dev Teams",
+    color: "#3b82f6",
+    pills: ["Dev Handoff", "User Stories", "Roadmap"],
+    substeps: [
+      "Translate approved architecture into detailed user stories with clear acceptance criteria, edge case handling, and fallback logic (e.g., low-confidence escalation paths)",
+      "Create end-to-end workflow diagrams showing data flow, LLM/agent processing steps, tool integrations, and user-facing outputs",
+      "Define API contracts, model input/output schemas, retrieval pipeline specs (vector store, chunking strategy), and integration touchpoints",
+      "Document human-in-the-loop escalation logic: when does the agent defer to a human reviewer? What triggers a confidence threshold alert?",
+      "Produce a phased delivery roadmap with sprint milestones, dependency mapping, and go-live criteria — communicated in both technical and business-friendly formats"
+    ],
+    decisions: [
+      "Do dev teams have sufficient context to begin sprint planning without ambiguity? → If no, schedule a spec walkthrough and resolve open items first",
+      "Are all integration dependencies (APIs, data pipelines, auth) confirmed and scoped? → If no, flag blockers and adjust timeline before kickoff"
+    ],
+    outputs: ["User Stories & Acceptance Criteria", "Workflow & Architecture Diagrams", "API / Data Schema Spec Sheet", "Phased Delivery Roadmap"]
+  },
+  {
+    num: "05",
+    tag: "Phase Five",
+    title: "Testing, Enablement, Feedback & Roadmap Influence",
+    color: "#ef4444",
+    pills: ["UAT", "Training", "KPI Monitoring", "Iteration"],
+    substeps: [
+      "Define and execute evaluation framework: LLM performance benchmarks, business KPI targets, user satisfaction scores, and compliance pass criteria",
+      "Coordinate UAT with business stakeholders using real-world scenarios — capture qualitative and quantitative feedback in structured format",
+      "Design and deliver AI enablement materials tailored to audience: step-by-step user guides, short-form tutorials, and executive case studies for the deployed solution",
+      "Monitor post-launch engagement and business outcome KPIs (e.g., time saved, error rates, adoption rates) and synthesize into a continuous improvement report",
+      "Feed structured feedback, performance data, and new use case signals back into the AI product and program roadmap — closing the loop with stakeholders"
+    ],
+    decisions: [
+      "Does the solution meet defined success metrics and stakeholder expectations? → If yes, finalize sign-off and move to full rollout; if no, triage gaps and return to Phase 03 or 04",
+      "Are adoption rates and engagement meeting targets post-launch? → If no, revise enablement approach and run additional training sessions before expanding rollout"
+    ],
+    outputs: ["UAT Sign-off & Go-Live Checklist", "Model & Agent Evaluation Report", "Enablement Guides & Training Materials", "KPI Dashboard & Roadmap Influence Report"]
+  }
+];
+
+const connectors = [
+  { from: '#00d4aa', to: '#6c63ff' },
+  { from: '#6c63ff', to: '#f59e0b' },
+  { from: '#f59e0b', to: '#3b82f6' },
+  { from: '#3b82f6', to: '#ef4444' },
+];
+
+const flow = document.getElementById('flow');
+
+phases.forEach((phase, i) => {
+  const phaseEl = document.createElement('div');
+  phaseEl.className = 'phase';
+  phaseEl.innerHTML = `
+    <div class="phase-card" style="--phase-color:${phase.color}" id="phase-${i}">
+      <div class="phase-header">
+        <div class="phase-num">${phase.num}</div>
+        <div class="phase-title-block">
+          <div class="phase-tag">${phase.tag}</div>
+          <div class="phase-title">${phase.title}</div>
+          <div class="phase-pills">${phase.pills.map(p => `<span class="phase-pill">${p}</span>`).join('')}</div>
+        </div>
+        <div class="phase-toggle">
+          <svg viewBox="0 0 12 12"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+        </div>
+      </div>
+
+      <div class="phase-body">
+        <div class="phase-body-inner">
+          <div class="divider"></div>
+          <div class="phase-content">
+            <div>
+              <div class="section-label">Sub-Steps</div>
+              ${phase.substeps.map(s => `<div class="substep"><div class="substep-dot"></div><span>${s}</span></div>`).join('')}
+            </div>
+            <div>
+              <div class="section-label">Decision Gates</div>
+              ${phase.decisions.map(d => `<div class="decision"><div class="d-icon">◆</div><span>${d}</span></div>`).join('')}
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="output-row">
+            <div class="section-label">Phase Outputs & Deliverables</div>
+            <div class="output-tags">${phase.outputs.map(o => `<span class="output-tag">→ ${o}</span>`).join('')}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  phaseEl.querySelector('.phase-card').addEventListener('click', function () {
+    const isOpen = this.classList.contains('open');
+    document.querySelectorAll('.phase-card').forEach(c => c.classList.remove('open'));
+    if (!isOpen) this.classList.add('open');
+  });
+
+  flow.appendChild(phaseEl);
+
+  if (i < phases.length - 1) {
+    const c = connectors[i];
+    const conn = document.createElement('div');
+    conn.className = 'connector';
+    conn.innerHTML = `
+      <div class="connector-line" style="--from-color:${c.from};--to-color:${c.to}"></div>
+      <div class="connector-arrow" style="--to-color:${c.to}"></div>
+    `;
+    flow.appendChild(conn);
+  }
+});
+
+document.getElementById('phase-0').classList.add('open');
+</script>
+</body>
+</html>

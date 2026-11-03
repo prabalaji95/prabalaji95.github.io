@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pranav Balaji — AI Solutions Professional</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add("js");</script>
 <style>
   :root {
     --cream:   #F7F4EF;
@@ -162,28 +163,34 @@
     white-space: nowrap;
   }
 
+  .tab-btn { position: relative; display: inline-flex; align-items: center; min-height: 48px; text-decoration: none; }
   .tab-btn:hover { color: var(--ink); }
-
-  .tab-btn.active,
-  a.tab-btn:focus {
-    color: var(--teal);
-    border-bottom-color: var(--teal);
+  .tab-btn::after {
+    content: '';
+    position: absolute;
+    left: 20px; right: 20px; bottom: -2px;
+    height: 2px;
+    background: var(--teal);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
   }
-  /* Highlight nav link when its section is targeted */
-  a.tab-btn[href="#overview"] { color: var(--teal); border-bottom-color: var(--teal); }
-  #tab-experience:target ~ * a.tab-btn[href="#overview"],
-  #tab-projects:target ~ * a.tab-btn[href="#overview"] { color: var(--muted); border-bottom-color: transparent; }
-  #tab-experience:target ~ * a.tab-btn[href="#experience"] { color: var(--teal); border-bottom-color: var(--teal); }
-  #tab-projects:target ~ * a.tab-btn[href="#projects"] { color: var(--teal); border-bottom-color: var(--teal); }
+  .tab-btn.active { color: var(--teal); }
+  .tab-btn.active::after { transform: scaleX(1); }
+
+  .scroll-progress {
+    position: absolute;
+    left: 0; bottom: -1px;
+    width: 100%; height: 2px;
+    background: linear-gradient(90deg, var(--teal-lt), var(--teal));
+    transform: scaleX(0);
+    transform-origin: left;
+    pointer-events: none;
+  }
 
   /* ── CONTENT PANELS ── */
   .tab-panel { display: none; }
-  .tab-panel.active { display: block; }
-  .tab-panel:target { display: block; animation: fadeIn 0.35s ease both; }
-  /* Keep overview visible when no hash */
-  #tab-overview { display: block; }
-  #tab-experience:target ~ #tab-overview,
-  #tab-projects:target ~ #tab-overview { display: none; }
+  .tab-panel.active { display: block; animation: fadeIn 0.45s ease both; }
 
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
@@ -241,7 +248,7 @@
   /* ── TAB 1: OVERVIEW ── */
   .overview-grid {
     display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
+    grid-template-columns: minmax(0, 1fr) 240px;
     gap: 48px;
     margin-bottom: 56px;
   }
@@ -249,7 +256,7 @@
   /* Stats row */
   .stats-row {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 1px;
     background: var(--border);
     border: 1px solid var(--border);
@@ -260,13 +267,13 @@
 
   .stat-cell {
     background: var(--paper);
-    padding: 24px 20px;
+    padding: 24px 8px;
     text-align: center;
   }
 
   .stat-num {
     font-family: 'Playfair Display', serif;
-    font-size: 32px;
+    font-size: clamp(22px, 3vw, 30px);
     font-weight: 700;
     color: var(--teal);
     display: block;
@@ -436,7 +443,6 @@
   .job {
     position: relative;
     margin-bottom: 52px;
-    animation: fadeIn 0.4s ease both;
   }
 
   .job::before {
@@ -761,6 +767,190 @@
   .site-footer a { color: var(--teal-lt); text-decoration: none; transition: opacity 0.2s; }
   .site-footer a:hover { opacity: 0.75; }
 
+  /* ── ACCESSIBILITY ── */
+  .skip-link {
+    position: absolute; left: 16px; top: -48px;
+    background: var(--ink); color: var(--white);
+    font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.1em;
+    padding: 10px 16px; border-radius: 0 0 8px 8px; z-index: 200;
+    text-decoration: none; transition: top 0.2s;
+  }
+  .skip-link:focus { top: 0; }
+  a:focus-visible, button:focus-visible, .carousel-track:focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+    transition-delay: var(--d, 0s);
+  }
+  .reveal.in { opacity: 1; transform: none; }
+
+  .stat-num { font-variant-numeric: tabular-nums; }
+
+  /* ── HOVER POLISH ── */
+  .goal-card, .skill-group, .stat-cell, .finding-card { transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease; }
+  .goal-card:hover, .skill-group:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,0.08); }
+  .stat-cell:hover { background: var(--white); }
+  .skill-tag, .job-tag, .tech-tag { transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
+  .skill-tag:hover { transform: translateY(-2px); border-color: var(--teal); color: var(--teal); }
+  .job-tag:hover, .tech-tag:hover { transform: translateY(-2px); border-color: var(--teal); color: var(--teal); }
+  .project-card { transition: box-shadow 0.25s ease, transform 0.25s ease; }
+  .project-card:hover { transform: translateY(-3px); }
+  .hero-contact a { position: relative; }
+
+  /* ── TIMELINE DRAW ── */
+  html.js .timeline::before {
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 1.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  html.js .timeline.drawn::before { transform: scaleY(1); }
+
+  /* ── EARLIER ROLES TOGGLE ── */
+  .older-toggle-wrap { margin: 4px 0 40px; }
+  .older-toggle {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--teal); background: var(--paper);
+    border: 1px solid var(--border); border-radius: 24px;
+    padding: 14px 22px; min-height: 44px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 10px;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  }
+  .older-toggle:hover { background: var(--white); border-color: var(--teal); transform: translateY(-2px); }
+  .older-toggle .chev { display: inline-block; transition: transform 0.3s ease; }
+  .older-toggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
+  .older-roles.is-collapsed { display: none; }
+  .older-roles.is-open { animation: fadeIn 0.45s ease both; }
+
+  /* ── CAROUSEL ── */
+  .carousel { margin: 0 0 56px; }
+  .carousel-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .carousel-head .section-label { margin-bottom: 0; }
+  .carousel-all {
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--teal); text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .carousel-all:hover { opacity: 0.7; }
+  .carousel-track {
+    display: flex; gap: 12px;
+    overflow-x: auto; scroll-snap-type: x mandatory;
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    border-radius: 14px;
+  }
+  .carousel-track::-webkit-scrollbar { display: none; }
+  .slide {
+    flex: 0 0 100%; scroll-snap-align: start;
+    position: relative; overflow: hidden;
+    background: var(--ink); color: #FDFAF6;
+    border-radius: 14px; border-top: 3px solid var(--accent, var(--teal-lt));
+    padding: 28px 28px 24px; min-height: 292px;
+    display: flex; flex-direction: column; gap: 12px;
+    text-decoration: none;
+    transition: box-shadow 0.25s ease;
+  }
+  .slide::before {
+    content: ''; position: absolute; top: -90px; right: -90px;
+    width: 260px; height: 260px; border-radius: 50%;
+    background: radial-gradient(circle, var(--accent, var(--teal-lt)) 0%, transparent 70%);
+    opacity: 0.16; pointer-events: none;
+  }
+  .slide:hover { box-shadow: 0 12px 36px rgba(0,0,0,0.22); }
+  .slide-num { position: absolute; right: 22px; bottom: 8px; font-family: 'Playfair Display', serif; font-size: 72px; font-weight: 700; color: rgba(255,255,255,0.05); line-height: 1; }
+  .slide-type { font-family: 'DM Mono', monospace; font-size: 9.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent, var(--teal-lt)); }
+  .slide-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; line-height: 1.25; color: #FDFAF6; }
+  .slide-desc { font-size: 13.5px; line-height: 1.7; color: #C8BFB4; }
+  .slide-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
+  .slide-tags span { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.08em; padding: 4px 10px; border: 1px solid rgba(255,255,255,0.18); border-radius: 20px; color: #C8BFB4; }
+  .slide-cta { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent, var(--teal-lt)); display: inline-flex; gap: 8px; transition: gap 0.2s; }
+  .slide:hover .slide-cta { gap: 14px; }
+  .carousel-controls { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+  .carousel-btns { display: flex; gap: 8px; }
+  .carousel-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 1px solid var(--border); background: var(--paper); color: var(--ink);
+    font-size: 16px; cursor: pointer; transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.2s;
+  }
+  .carousel-btn:hover { border-color: var(--teal); color: var(--teal); transform: translateY(-2px); }
+  .carousel-dots { display: flex; gap: 4px; }
+  .carousel-dot { width: 24px; height: 24px; border: none; background: none; cursor: pointer; display: grid; place-items: center; }
+  .carousel-dot::before { content: ''; width: 8px; height: 8px; border-radius: 8px; background: var(--border); transition: width 0.3s ease, background 0.3s ease; }
+  .carousel-dot[aria-current="true"]::before { width: 22px; background: var(--teal); }
+
+  /* ── WORKFLOWS TAB ── */
+  .wf-grid { display: grid; gap: 16px; margin: 20px 0 48px; }
+  .wf-card {
+    --accent: var(--teal);
+    display: block; text-decoration: none; color: inherit;
+    background: var(--paper); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); border-radius: 0 14px 14px 0;
+    padding: 24px 26px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .wf-card:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(0,0,0,0.08); }
+  .wf-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .wf-type { font-family: 'DM Mono', monospace; font-size: 9.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); }
+  .wf-arrow { font-size: 18px; color: var(--accent); transition: transform 0.25s ease; }
+  .wf-card:hover .wf-arrow, .wf-master:hover .wf-arrow { transform: translateX(6px); }
+  .wf-title { font-family: 'Playfair Display', serif; font-size: 21px; font-weight: 600; line-height: 1.25; color: var(--ink); margin-bottom: 10px; }
+  .wf-desc { font-size: 14px; line-height: 1.75; color: var(--ink-2); max-width: 680px; }
+  .wf-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+  .wf-tags span { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.08em; padding: 4px 10px; background: var(--warm); border: 1px solid var(--border); border-radius: 20px; color: var(--muted); }
+  .wf-phases { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .wf-phases-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
+  .wf-phase { font-family: 'DM Mono', monospace; font-size: 9.5px; letter-spacing: 0.06em; padding: 4px 10px; border-radius: 6px; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--ink-2); }
+  .wf-master {
+    display: grid; grid-template-columns: auto 1fr auto; gap: 22px; align-items: center;
+    text-decoration: none; background: var(--ink); color: #FDFAF6;
+    border-radius: 16px; padding: 28px 30px; margin-top: 20px; position: relative; overflow: hidden;
+    border-top: 3px solid var(--teal-lt);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .wf-master::before { content: ''; position: absolute; top: -100px; right: -60px; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(2,192,154,0.16) 0%, transparent 70%); pointer-events: none; }
+  .wf-master:hover { transform: translateY(-3px); box-shadow: 0 14px 40px rgba(0,0,0,0.2); }
+  .wf-master-icon { font-size: 38px; color: var(--teal-lt); line-height: 1; }
+  .wf-master .wf-type { color: var(--teal-lt); margin-bottom: 8px; display: block; }
+  .wf-master .wf-title { color: #FDFAF6; margin-bottom: 8px; }
+  .wf-master .wf-desc { color: #C8BFB4; }
+  .wf-master .wf-arrow { color: var(--teal-lt); font-size: 22px; }
+
+  .overview-grid > * { min-width: 0; }
+  .carousel, .carousel-track { min-width: 0; max-width: 100%; }
+
+  /* ── NAV / MOBILE POLISH ── */
+  .tab-nav-inner { scrollbar-width: none; }
+  .tab-nav-inner::-webkit-scrollbar { display: none; }
+  @media (max-width: 720px) {
+    .tab-btn { padding: 14px 14px 12px; }
+    .tab-btn::after { left: 14px; right: 14px; }
+    .slide { padding: 22px 20px 20px; min-height: 0; }
+    .slide-num { font-size: 56px; }
+    .wf-card { padding: 20px; }
+    .wf-master { grid-template-columns: 1fr; gap: 12px; padding: 22px 20px; }
+    .wf-master .wf-arrow { justify-self: start; }
+    .stat-cell { padding: 20px 12px; }
+    .stat-num { font-size: 26px; }
+    .site-footer { padding: 28px 20px; }
+    .older-toggle { width: 100%; justify-content: center; }
+  }
+
+  @media print { .older-roles.is-collapsed { display: block !important; } .older-toggle-wrap, .scroll-progress, .carousel { display: none !important; } .reveal { opacity: 1 !important; transform: none !important; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+    html.js .timeline::before { transform: none; }
+    .carousel-track { scroll-behavior: auto; }
+  }
+
   /* ── RESPONSIVE ── */
   @media (max-width: 720px) {
     .hero { padding: 40px 24px 36px; }
@@ -778,6 +968,8 @@
 </style>
 </head>
 <body>
+
+<a class="skip-link" href="#main">Skip to content</a>
 
 <!-- ── HERO ── -->
 <header class="hero">
@@ -798,11 +990,15 @@
 <!-- ── TABS ── -->
 <nav class="tab-nav">
   <div class="tab-nav-inner">
-    <a class="tab-btn active" href="#overview">Overview</a>
+    <a class="tab-btn active" href="#overview" aria-current="page">Overview</a>
     <a class="tab-btn" href="#experience">Experience</a>
+    <a class="tab-btn" href="#workflows">AI Workflows</a>
     <a class="tab-btn" href="#projects">School Projects</a>
   </div>
+  <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
 </nav>
+
+<main id="main">
 
 <!-- ══════════════════════════════
      TAB 1 — OVERVIEW
@@ -846,6 +1042,46 @@
             <span class="stat-lbl">Value Delivered</span>
           </div>
         </div>
+
+        <!-- Featured Workflows carousel -->
+        <section class="carousel" id="carousel" aria-roledescription="carousel" aria-label="Featured AI workflows">
+          <div class="carousel-head">
+            <div class="section-label">Featured Workflows</div>
+            <a class="carousel-all" href="#workflows">View all →</a>
+          </div>
+          <div class="carousel-track" id="carousel-track" tabindex="0" aria-live="polite">
+            <a class="slide" href="ai-solutions-workflow-v2.html" style="--accent:#02C39A" role="group" aria-roledescription="slide" aria-label="1 of 3">
+              <div class="slide-type">Core Methodology</div>
+              <div class="slide-title">AI Solutions Assessment &amp; Delivery Workflow</div>
+              <p class="slide-desc">The foundational consultative methodology for identifying, validating, and delivering AI agents and applications — from stakeholder discovery through dev team handoff and KPI-driven feedback loops. The source framework behind all project workflows.</p>
+              <span class="slide-cta">Open workflow <span>→</span></span>
+              <div class="slide-num" aria-hidden="true">01</div>
+            </a>
+            <a class="slide" href="alllife-bank-solutions-workflow.html" style="--accent:#8b84ff" role="group" aria-roledescription="slide" aria-label="2 of 3">
+              <div class="slide-type">Machine Learning · Classification</div>
+              <div class="slide-title">AllLife Bank — Personal Loan Campaign Optimization</div>
+              <p class="slide-desc">Applying a structured AI solutions methodology to a binary classification problem: predicting personal loan conversion among liability customers using Decision Tree models.</p>
+              <div class="slide-tags"><span>Decision Trees</span><span>Class Imbalance</span><span>Pre &amp; Post Pruning</span><span>ROI Framing</span></div>
+              <span class="slide-cta">Open workflow <span>→</span></span>
+              <div class="slide-num" aria-hidden="true">02</div>
+            </a>
+            <a class="slide" href="foodhub-solutions-workflow.html" style="--accent:#f59e0b" role="group" aria-roledescription="slide" aria-label="3 of 3">
+              <div class="slide-type">Data Analysis · Exploratory</div>
+              <div class="slide-title">FoodHub — Restaurant Demand &amp; Customer Behavior Analysis</div>
+              <p class="slide-desc">Mapping an exploratory data analysis project onto a structured AI solutions workflow — from stakeholder requirements through actionable business recommendations.</p>
+              <div class="slide-tags"><span>EDA</span><span>Demand Patterns</span><span>Stakeholder Questions</span><span>Recommendations</span></div>
+              <span class="slide-cta">Open workflow <span>→</span></span>
+              <div class="slide-num" aria-hidden="true">03</div>
+            </a>
+          </div>
+          <div class="carousel-controls">
+            <div class="carousel-dots" id="carousel-dots"></div>
+            <div class="carousel-btns">
+              <button class="carousel-btn" id="carousel-prev" type="button" aria-label="Previous workflow">←</button>
+              <button class="carousel-btn" id="carousel-next" type="button" aria-label="Next workflow">→</button>
+            </div>
+          </div>
+        </section>
 
         <!-- Career Goals -->
         <div class="section-label" style="margin-top:8px;">What I'm Looking For</div>
@@ -1023,6 +1259,13 @@
         </div>
       </div>
 
+      <div class="older-toggle-wrap" id="older-toggle-wrap" hidden>
+        <button class="older-toggle" id="older-toggle" type="button" aria-expanded="false" aria-controls="older-roles">
+          <span id="older-toggle-label">Show earlier roles (5)</span><span class="chev" aria-hidden="true">▾</span>
+        </button>
+      </div>
+
+      <div class="older-roles" id="older-roles">
       <div class="job-divider"></div>
 
       <!-- Job 1 -->
@@ -1125,8 +1368,61 @@
           <span class="job-tag">Shell Scripting</span><span class="job-tag">Data Warehouse</span>
         </div>
       </div>
+      </div><!-- /older-roles -->
 
     </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     TAB — AI WORKFLOWS
+══════════════════════════════ -->
+<div class="tab-panel" id="workflows">
+  <div class="content-wrap">
+
+    <div class="section-label">AI Workflow Portfolio</div>
+    <h2 class="section-title">AI Solutions <em>Portfolio</em></h2>
+    <p class="body-text">A structured collection of AI workflow methodologies — from the master assessment framework to project-specific applications in machine learning and data analysis.</p>
+
+    <div class="stats-row">
+      <div class="stat-cell"><span class="stat-num">3</span><span class="stat-lbl">Workflows</span></div>
+      <div class="stat-cell"><span class="stat-num">5</span><span class="stat-lbl">Phases Each</span></div>
+      <div class="stat-cell"><span class="stat-num">15+</span><span class="stat-lbl">Decision Gates</span></div>
+      <div class="stat-cell"><span class="stat-num">20+</span><span class="stat-lbl">Deliverables</span></div>
+    </div>
+
+    <div class="section-label">Project Workflows</div>
+    <div class="wf-grid">
+
+      <a class="wf-card" href="alllife-bank-solutions-workflow.html" style="--accent:#6c63ff">
+        <div class="wf-top"><div class="wf-type">Machine Learning · Classification</div><span class="wf-arrow" aria-hidden="true">→</span></div>
+        <h3 class="wf-title">AllLife Bank — Personal Loan Campaign Optimization</h3>
+        <p class="wf-desc">Applying a structured AI solutions methodology to a binary classification problem: predicting personal loan conversion among liability customers using Decision Tree models.</p>
+        <div class="wf-tags"><span>Decision Trees</span><span>Class Imbalance</span><span>Pre &amp; Post Pruning</span><span>Feature Importance</span><span>ROI Framing</span></div>
+        <div class="wf-phases"><span class="wf-phases-label">Phase breakdown</span><span class="wf-phase">Requirements</span><span class="wf-phase">EDA</span><span class="wf-phase">Modeling</span><span class="wf-phase">Evaluation</span><span class="wf-phase">Insights</span></div>
+      </a>
+
+      <a class="wf-card" href="foodhub-solutions-workflow.html" style="--accent:#f59e0b">
+        <div class="wf-top"><div class="wf-type">Data Analysis · Exploratory</div><span class="wf-arrow" aria-hidden="true">→</span></div>
+        <h3 class="wf-title">FoodHub — Restaurant Demand &amp; Customer Behavior Analysis</h3>
+        <p class="wf-desc">Mapping an exploratory data analysis project onto a structured AI solutions workflow — from stakeholder requirements through actionable business recommendations.</p>
+        <div class="wf-tags"><span>EDA</span><span>Demand Patterns</span><span>Stakeholder Questions</span><span>Business Metrics</span><span>Recommendations</span></div>
+        <div class="wf-phases"><span class="wf-phases-label">Phase breakdown</span><span class="wf-phase">Requirements</span><span class="wf-phase">Framing</span><span class="wf-phase">EDA</span><span class="wf-phase">Metrics</span><span class="wf-phase">Roadmap</span></div>
+      </a>
+
+    </div>
+
+    <div class="section-label">Master Framework</div>
+    <a class="wf-master" href="ai-solutions-workflow-v2.html">
+      <div class="wf-master-icon" aria-hidden="true">⬡</div>
+      <div>
+        <span class="wf-type">Core Methodology</span>
+        <h3 class="wf-title">AI Solutions Assessment &amp; Delivery Workflow</h3>
+        <p class="wf-desc">The foundational consultative methodology for identifying, validating, and delivering AI agents and applications — from stakeholder discovery through dev team handoff and KPI-driven feedback loops. The source framework behind all project workflows.</p>
+      </div>
+      <span class="wf-arrow" aria-hidden="true">→</span>
+    </a>
+
   </div>
 </div>
 
@@ -1274,43 +1570,189 @@
   </div>
 </div>
 
+</main>
+
 <!-- ── FOOTER ── -->
 <footer class="site-footer">
-  <p><span>prabalaji95@gmail.com</span> · <a href="https://www.linkedin.com/in/pranav-balaji-ai-analyst/" target="_blank" rel="noopener">LinkedIn</a> · <a href="https://prabalaji95.github.io/">prabalaji95.github.io</a> · <a href="ai-solutions-portfolio.html">View AI Workflow Portfolio →</a></p>
+  <p><span>prabalaji95@gmail.com</span> · <a href="https://www.linkedin.com/in/pranav-balaji-ai-analyst/" target="_blank" rel="noopener">LinkedIn</a> · <a href="https://prabalaji95.github.io/">prabalaji95.github.io</a></p>
 </footer>
 
 <script>
 (function() {
+  var TABS = ['overview','experience','workflows','projects'];
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var nav = document.querySelector('.tab-nav');
+
+  /* ── Tabs ── */
   function activate(hash) {
-    hash = hash || '#overview';
-    var tabId = hash.replace('#', '');
-    // panels
-    ['overview','experience','projects'].forEach(function(id) {
-      var el = document.getElementById(id);
-      if (el) el.style.display = (id === tabId) ? 'block' : 'none';
+    var id = (hash || '').replace('#','');
+    if (TABS.indexOf(id) === -1) id = 'overview';
+    TABS.forEach(function(t) {
+      var el = document.getElementById(t);
+      if (el) el.classList.toggle('active', t === id);
     });
-    // buttons
     document.querySelectorAll('.tab-btn').forEach(function(btn) {
-      var active = btn.getAttribute('href') === hash;
-      btn.style.color = active ? 'var(--teal)' : '';
-      btn.style.borderBottomColor = active ? 'var(--teal)' : 'transparent';
+      var on = btn.getAttribute('href') === '#' + id;
+      btn.classList.toggle('active', on);
+      if (on) btn.setAttribute('aria-current','page'); else btn.removeAttribute('aria-current');
+      if (on && btn.scrollIntoView && nav.scrollWidth > nav.clientWidth) btn.scrollIntoView({inline:'center', block:'nearest'});
+    });
+    document.title = 'Pranav Balaji — AI Solutions Professional';
+    updateProgress();
+  }
+  function toNavTop() {
+    var top = nav.offsetTop;
+    if (window.scrollY > top) window.scrollTo({ top: top, behavior: reduce ? 'auto' : 'smooth' });
+  }
+  document.addEventListener('click', function(e) {
+    var a = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!a) return;
+    var h = a.getAttribute('href');
+    if (TABS.indexOf(h.slice(1)) === -1) return;
+    e.preventDefault();
+    if (location.hash !== h) history.pushState(null, '', h);
+    activate(h);
+    toNavTop();
+  });
+  window.addEventListener('popstate', function() { activate(location.hash); });
+  window.addEventListener('hashchange', function() { activate(location.hash); });
+  /* ── Scroll progress bar ── */
+  var bar = document.getElementById('scroll-progress');
+  function updateProgress() {
+    var h = document.documentElement;
+    var max = h.scrollHeight - h.clientHeight;
+    bar.style.transform = 'scaleX(' + (max > 0 ? Math.min(1, window.scrollY / max) : 0) + ')';
+  }
+  var ticking = false;
+  window.addEventListener('scroll', function() {
+    if (!ticking) { ticking = true; requestAnimationFrame(function() { updateProgress(); ticking = false; }); }
+  }, { passive: true });
+  window.addEventListener('resize', updateProgress);
+
+  /* ── Earlier roles toggle ── */
+  var older = document.getElementById('older-roles');
+  var wrap = document.getElementById('older-toggle-wrap');
+  var btn = document.getElementById('older-toggle');
+  if (older && wrap && btn) {
+    wrap.hidden = false;
+    older.classList.add('is-collapsed');
+    btn.addEventListener('click', function() {
+      var open = btn.getAttribute('aria-expanded') !== 'true';
+      btn.setAttribute('aria-expanded', open);
+      older.classList.toggle('is-collapsed', !open);
+      older.classList.toggle('is-open', open);
+      document.getElementById('older-toggle-label').textContent = open ? 'Hide earlier roles' : 'Show earlier roles (5)';
     });
   }
-  window.addEventListener('DOMContentLoaded', function() {
-    activate(window.location.hash || '#overview');
-    document.querySelectorAll('.tab-btn').forEach(function(btn) {
-      btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        var hash = this.getAttribute('href');
-        window.location.hash = hash;
-        activate(hash);
-        window.scrollTo({ top: document.querySelector('.tab-nav').offsetTop - 1, behavior: 'smooth' });
-      });
+
+  /* ── Carousel ── */
+  var track = document.getElementById('carousel-track');
+  if (track) {
+    var slides = Array.prototype.slice.call(track.querySelectorAll('.slide'));
+    var dotsEl = document.getElementById('carousel-dots');
+    var current = 0;
+    slides.forEach(function(sl, i) {
+      var d = document.createElement('button');
+      d.type = 'button'; d.className = 'carousel-dot';
+      d.setAttribute('aria-label', 'Go to workflow ' + (i + 1));
+      d.addEventListener('click', function() { goTo(i); });
+      dotsEl.appendChild(d);
     });
-  });
-  window.addEventListener('hashchange', function() {
-    activate(window.location.hash);
-  });
+    var dots = Array.prototype.slice.call(dotsEl.children);
+    function mark(i) { current = i; dots.forEach(function(d, k) { d.setAttribute('aria-current', k === i ? 'true' : 'false'); }); }
+    var lock = null;
+    function goTo(i) {
+      i = (i + slides.length) % slides.length;
+      clearTimeout(lock); lock = setTimeout(function() { lock = null; }, 700);
+      track.scrollTo({ left: slides[i].offsetLeft - slides[0].offsetLeft, behavior: reduce ? 'auto' : 'smooth' });
+      mark(i);
+    }
+    track.addEventListener('scroll', function() {
+      if (lock) return;
+      var best = 0, bd = Infinity;
+      slides.forEach(function(sl, i) {
+        var d = Math.abs(sl.offsetLeft - slides[0].offsetLeft - track.scrollLeft);
+        if (d < bd) { bd = d; best = i; }
+      });
+      if (best !== current) mark(best);
+    }, { passive: true });
+    document.getElementById('carousel-prev').addEventListener('click', function() { goTo(current - 1); });
+    document.getElementById('carousel-next').addEventListener('click', function() { goTo(current + 1); });
+    track.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); goTo(current + 1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(current - 1); }
+    });
+    mark(0);
+  }
+
+  /* ── Scroll reveal, count-up, timeline draw ── */
+  function countUp(el) {
+    var t = el.textContent.trim();
+    var m = t.match(/^(\D*)([\d,]+(?:\.\d+)?)(.*)$/);
+    if (!m) return;
+    var target = parseFloat(m[2].replace(/,/g, ''));
+    var comma = m[2].indexOf(',') > -1;
+    var dec = (m[2].split('.')[1] || '').length;
+    function fmt(v) {
+      return m[1] + (comma ? v.toLocaleString('en-US', {minimumFractionDigits: dec, maximumFractionDigits: dec}) : v.toFixed(dec)) + m[3];
+    }
+    var start = null, dur = 1200;
+    el.textContent = fmt(0);
+    function step(ts) {
+      if (start === null) start = ts;
+      var p = Math.min(1, (ts - start) / dur);
+      var eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = fmt(target * eased);
+      if (p < 1) requestAnimationFrame(step); else el.textContent = t;
+    }
+    requestAnimationFrame(step);
+  }
+
+  if (!reduce && 'IntersectionObserver' in window) {
+    var sel = '.section-label, .section-title, .body-text, .stats-row, .carousel, .goal-card, .skill-group, .about-card, .job, .project-card, .wf-card, .wf-master, .finding-card';
+    var items = Array.prototype.slice.call(document.querySelectorAll(sel));
+    items.forEach(function(el) {
+      if (el.closest('.about-aside') && el.classList.contains('about-card')) return;
+      var first = el.classList[0];
+      var sibs = el.parentElement ? Array.prototype.slice.call(el.parentElement.children).filter(function(c) { return c.classList.contains(first); }) : [];
+      var idx = Math.max(0, sibs.indexOf(el));
+      el.style.setProperty('--d', (Math.min(idx, 4) * 0.08) + 's');
+      el.classList.add('reveal');
+    });
+    var io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(en) {
+        if (!en.isIntersecting) return;
+        var el = en.target;
+        io.unobserve(el);
+        el.classList.add('in');
+        setTimeout(function() { el.classList.remove('reveal', 'in'); el.style.removeProperty('--d'); }, 1100);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal').forEach(function(el) { io.observe(el); });
+
+    var nums = document.querySelectorAll('.stat-num');
+    var io2 = new IntersectionObserver(function(entries) {
+      entries.forEach(function(en) {
+        if (!en.isIntersecting) return;
+        io2.unobserve(en.target);
+        countUp(en.target);
+      });
+    }, { threshold: 0.6 });
+    nums.forEach(function(n) { io2.observe(n); });
+
+    var tl = document.querySelector('.timeline');
+    if (tl) {
+      var io3 = new IntersectionObserver(function(entries) {
+        entries.forEach(function(en) { if (en.isIntersecting) { tl.classList.add('drawn'); io3.disconnect(); } });
+      }, { threshold: 0.05 });
+      io3.observe(tl);
+    }
+  } else {
+    var tl2 = document.querySelector('.timeline');
+    if (tl2) tl2.classList.add('drawn');
+  }
+
+  activate(location.hash || '#overview');
 })();
 </script>
 

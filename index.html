@@ -965,6 +965,113 @@
     .project-body { padding: 20px; }
     .project-header { padding: 20px; }
   }
+
+  /* ── DESKTOP: larger type and more breathing room ── */
+  @media (min-width: 1100px) {
+    .hero { padding: 88px 64px 76px; }
+    .hero-inner, .tab-nav-inner, .content-wrap { max-width: 1180px; }
+    .hero-eyebrow { font-size: 12px; margin-bottom: 24px; }
+    .hero h1 { font-size: clamp(64px, 6vw, 92px); margin-bottom: 26px; }
+    .hero-tagline { font-size: 19px; max-width: 700px; margin-bottom: 36px; }
+    .hero-contact { gap: 28px; }
+    .hero-contact a, .hero-contact span { font-size: 13px; }
+
+    .tab-nav-inner { padding: 0 64px; }
+    .tab-btn { font-size: 12px; padding: 22px 28px 20px; min-height: 62px; }
+    .tab-btn::after { left: 28px; right: 28px; }
+
+    .content-wrap { padding: 80px 64px 128px; }
+    .section-label { font-size: 11.5px; margin-bottom: 16px; }
+    .section-label::after { max-width: 160px; }
+    .section-title { font-size: clamp(34px, 3vw, 44px); margin-bottom: 28px; }
+    .body-text { font-size: 18px; line-height: 1.85; max-width: 780px; }
+    .body-text + .body-text { margin-top: 22px; }
+
+    .overview-grid { grid-template-columns: minmax(0, 1fr) 320px; gap: 80px; margin-bottom: 72px; }
+    .stats-row { margin: 56px 0 72px; }
+    .stat-cell { padding: 32px 12px; }
+    .stat-num { font-size: clamp(30px, 2.8vw, 40px); margin-bottom: 10px; }
+    .stat-lbl { font-size: 10.5px; }
+
+    .carousel { margin-bottom: 72px; }
+    .carousel-head { margin-bottom: 20px; }
+    .carousel-all { font-size: 11.5px; }
+    .slide { padding: 38px 38px 32px; min-height: 340px; gap: 16px; }
+    .slide-type { font-size: 11px; }
+    .slide-title { font-size: 28px; }
+    .slide-desc { font-size: 16px; }
+    .slide-tags span { font-size: 10.5px; padding: 5px 12px; }
+    .slide-cta { font-size: 11.5px; }
+    .slide-num { font-size: 104px; right: 28px; }
+    .carousel-controls { margin-top: 20px; }
+    .carousel-btn { width: 48px; height: 48px; font-size: 18px; }
+
+    .goals-grid { gap: 24px; margin-top: 28px; }
+    .goal-card { padding: 28px 30px; }
+    .goal-card-title { font-size: 11px; margin-bottom: 12px; }
+    .goal-card p { font-size: 15.5px; line-height: 1.75; }
+    .skills-grid { gap: 22px; margin-top: 28px; }
+    .skill-group { padding: 26px 22px; }
+    .skill-group-title { font-size: 10.5px; margin-bottom: 14px; }
+    .skill-tag { font-size: 12.5px; padding: 6px 12px; }
+    .skill-tags { gap: 8px; }
+
+    .about-card { padding: 36px 32px; }
+    .about-card-label { font-size: 10.5px; }
+    .about-card-title { font-size: 25px; }
+    .about-card p { font-size: 15px; line-height: 1.75; }
+    .hobby-list { gap: 16px; }
+    .hobby-list li { font-size: 14.5px; line-height: 1.5; }
+    .hobby-icon { font-size: 18px; width: 30px; }
+
+    .job { margin-bottom: 72px; }
+    .job-divider { margin-bottom: 72px; }
+    .timeline { padding-left: 36px; }
+    .job::before { left: -40px; }
+    .job-title { font-size: 28px; }
+    .job-date { font-size: 11.5px; }
+    .job-company { font-size: 15px; margin-bottom: 14px; }
+    .job-desc { font-size: 16.5px; max-width: 800px; margin-bottom: 20px; }
+    .job-bullets { gap: 12px; }
+    .job-bullets li { font-size: 15.5px; line-height: 1.75; }
+    .job-tag { font-size: 11.5px; padding: 5px 12px; }
+    .older-toggle { font-size: 11.5px; padding: 16px 28px; }
+
+    .projects-grid { gap: 56px; }
+    .project-header { padding: 36px 44px 32px; }
+    .project-body { padding: 36px 44px; }
+    .project-type { font-size: 11px; }
+    .project-title { font-size: 30px; }
+    .project-subtitle { font-size: 15.5px; }
+    .project-section-head { font-size: 10.5px; }
+    .project-text { font-size: 16px; line-height: 1.85; }
+    .project-list li { font-size: 15.5px; line-height: 1.75; }
+    .finding-card { padding: 20px 22px; }
+    .finding-card-title { font-size: 10.5px; }
+    .finding-card p { font-size: 14.5px; line-height: 1.7; }
+    .outcome-text h4 { font-size: 11px; }
+    .outcome-text p { font-size: 15px; }
+    .tech-tag { font-size: 11.5px; padding: 5px 12px; }
+
+    .wf-grid { gap: 24px; margin: 28px 0 64px; }
+    .wf-card { padding: 34px 38px; }
+    .wf-type { font-size: 11px; }
+    .wf-arrow { font-size: 22px; }
+    .wf-title { font-size: 27px; margin-bottom: 14px; }
+    .wf-desc { font-size: 16.5px; line-height: 1.8; max-width: 800px; }
+    .wf-tags { gap: 8px; margin-top: 20px; }
+    .wf-tags span { font-size: 10.5px; padding: 5px 12px; }
+    .wf-phases { margin-top: 24px; padding-top: 20px; gap: 10px; }
+    .wf-phases-label { font-size: 10.5px; }
+    .wf-phase { font-size: 11.5px; padding: 5px 12px; }
+    .wf-master { padding: 40px 44px; gap: 32px; }
+    .wf-master-icon { font-size: 52px; }
+    .wf-master .wf-title { font-size: 28px; }
+    .wf-master .wf-arrow { font-size: 26px; }
+
+    .site-footer { padding: 48px 64px; }
+    .site-footer p { font-size: 12px; }
+  }
 </style>
 </head>
 <body>

@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReneWind Predictive Maintenance – AI Solutions Workflow</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080a0f;
+    --surface: #10131a;
+    --card: #181c28;
+    --border: #222736;
+    --text: #e4e8f0;
+    --muted: #64748b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(108,99,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(108,99,255,0.03) 1px, transparent 1px);
+    background-size: 44px 44px;
+    pointer-events: none; z-index: 0;
+  }
+
+  .wrapper {
+    position: relative; z-index: 1;
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 52px 24px 96px;
+  }
+
+  /* ── Header ── */
+  .header { text-align: center; margin-bottom: 16px; animation: fadeDown 0.7s ease both; }
+
+  .header .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 10px; letter-spacing: 0.28em;
+    color: #a78bfa; text-transform: uppercase;
+    margin-bottom: 16px; padding: 6px 16px;
+    border: 1px solid rgba(167,139,250,0.25); border-radius: 20px;
+    background: rgba(167,139,250,0.06);
+  }
+
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 4vw, 44px);
+    font-weight: 700; line-height: 1.1;
+    background: linear-gradient(130deg, #fff 20%, #c4b5fd 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin-bottom: 12px;
+  }
+
+  .header p { color: var(--muted); font-size: 12px; max-width: 620px; margin: 0 auto; line-height: 1.7; }
+
+  /* ── Context bar ── */
+  .context-bar {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 12px; margin: 32px 0 48px;
+    animation: fadeUp 0.6s ease 0.1s both;
+  }
+
+  .ctx-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 18px;
+    position: relative; overflow: hidden;
+  }
+
+  .ctx-card::after {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, #6c63ff, #a78bfa);
+    opacity: 0.6;
+  }
+
+  .ctx-label { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .ctx-val { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 12.5px; color: var(--text); line-height: 1.35; }
+
+  /* ── Model comparison table ── */
+  .model-strip {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px 24px;
+    margin-bottom: 36px;
+    animation: fadeUp 0.6s ease 0.15s both;
+  }
+
+  .model-strip-label {
+    font-size: 9.5px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  .model-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .model-table th {
+    text-align: left; padding: 7px 12px;
+    color: var(--muted); font-weight: 400;
+    border-bottom: 1px solid var(--border);
+    font-size: 10px; letter-spacing: 0.1em;
+  }
+  .model-table td { padding: 8px 12px; border-bottom: 1px solid rgba(34,39,54,0.6); }
+  .model-table tr:last-child td { border-bottom: none; }
+  .model-table .winner { color: #34d399; font-weight: 500; }
+  .model-table .badge {
+    display: inline-block; padding: 2px 8px;
+    border-radius: 10px; font-size: 9px;
+    background: rgba(52,211,153,0.12);
+    border: 1px solid rgba(52,211,153,0.3);
+    color: #34d399; margin-left: 6px;
+  }
+  .model-table .badge-warn {
+    background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.3); color: #fbbf24;
+  }
+
+  /* ── Flow ── */
+  .flow { display: flex; flex-direction: column; }
+
+  .phase { animation: fadeUp 0.55s ease both; }
+  .phase:nth-child(1) { animation-delay: 0.1s; }
+  .phase:nth-child(2) { animation-delay: 0.18s; }
+  .phase:nth-child(3) { animation-delay: 0.26s; }
+  .phase:nth-child(4) { animation-delay: 0.34s; }
+  .phase:nth-child(5) { animation-delay: 0.42s; }
+
+  .phase-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; cursor: pointer;
+    transition: all 0.28s ease; position: relative; overflow: hidden;
+  }
+
+  .phase-card::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 4px; background: var(--phase-color);
+    transition: width 0.28s ease;
+  }
+
+  .phase-card:hover { border-color: var(--phase-color); transform: translateX(5px); box-shadow: -5px 0 28px rgba(0,0,0,0.4), 0 0 36px -12px var(--phase-color); }
+  .phase-card:hover::before, .phase-card.open::before { width: 6px; }
+  .phase-card.open { border-color: var(--phase-color); box-shadow: 0 0 38px -12px var(--phase-color); }
+
+  .phase-header { display: flex; align-items: center; gap: 16px; padding: 24px 28px; }
+
+  .phase-num {
+    width: 42px; height: 42px; border-radius: 10px;
+    background: var(--phase-color);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif; font-weight: 700; font-size: 15px;
+    color: #000; flex-shrink: 0;
+  }
+
+  .phase-title-block { flex: 1; }
+  .phase-tag { font-size: 9.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--phase-color); margin-bottom: 4px; }
+  .phase-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 16px; color: var(--text); }
+  .phase-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+  .phase-pill {
+    font-size: 10px; padding: 3px 9px; border-radius: 12px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    color: var(--muted); transition: all 0.2s;
+  }
+  .phase-card:hover .phase-pill, .phase-card.open .phase-pill { border-color: var(--phase-color); color: var(--text); background: rgba(255,255,255,0.06); }
+
+  .phase-toggle {
+    width: 30px; height: 30px; border-radius: 7px;
+    border: 1px solid var(--border); background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.28s ease; flex-shrink: 0;
+  }
+  .phase-card.open .phase-toggle { background: var(--phase-color); border-color: var(--phase-color); transform: rotate(45deg); }
+  .phase-toggle svg { width: 11px; height: 11px; stroke: var(--muted); fill: none; transition: stroke 0.2s; }
+  .phase-card:hover .phase-toggle svg { stroke: var(--text); }
+  .phase-card.open .phase-toggle svg { stroke: #000; }
+
+  .phase-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.4s ease; }
+  .phase-card.open .phase-body { grid-template-rows: 1fr; }
+  .phase-body-inner { overflow: hidden; }
+
+  .divider { height: 1px; background: var(--border); margin: 0 28px; }
+
+  .phase-content {
+    padding: 20px 28px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .section-label { font-size: 9.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+
+  .substep {
+    display: flex; align-items: flex-start; gap: 9px;
+    padding: 9px 12px; background: var(--surface); border-radius: 8px;
+    margin-bottom: 7px; border: 1px solid var(--border);
+    font-size: 11px; line-height: 1.55; transition: border-color 0.2s;
+  }
+  .substep:hover { border-color: var(--phase-color); }
+  .substep-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--phase-color); margin-top: 4px; flex-shrink: 0; }
+
+  .code-block {
+    background: #0d1117; border: 1px solid #30363d; border-radius: 8px;
+    padding: 10px 13px; margin-bottom: 7px; font-size: 10.5px;
+    line-height: 1.65; color: #79c0ff; overflow-x: auto; white-space: pre;
+  }
+  .cm { color: #8b949e; }
+  .kw { color: #ff7b72; }
+  .fn { color: #d2a8ff; }
+  .st { color: #a5d6ff; }
+  .nm { color: #79c0ff; }
+  .op { color: #f0883e; }
+
+  .decision {
+    display: flex; align-items: flex-start; gap: 9px;
+    padding: 9px 12px; background: rgba(251,191,36,0.05);
+    border: 1px solid rgba(251,191,36,0.18); border-radius: 8px;
+    margin-bottom: 7px; font-size: 11px; line-height: 1.55;
+  }
+  .d-icon { font-size: 11px; flex-shrink: 0; margin-top: 2px; color: #fbbf24; }
+
+  .output-row { padding: 14px 28px 22px; }
+  .output-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+  .output-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 12px; background: rgba(167,139,250,0.08);
+    border: 1px solid rgba(167,139,250,0.22); border-radius: 20px;
+    font-size: 11px; color: #a78bfa;
+  }
+
+  /* Connector */
+  .connector { display: flex; flex-direction: column; align-items: center; padding: 4px 0; }
+  .connector-line { width: 2px; height: 22px; background: linear-gradient(to bottom, var(--from-color), var(--to-color)); }
+  .connector-arrow { width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 8px solid var(--to-color); }
+
+  /* Legend */
+  .legend { display: flex; justify-content: center; gap: 28px; margin-top: 52px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); }
+  .l-dot { width: 8px; height: 8px; border-radius: 2px; }
+  .l-code { width: 16px; height: 8px; border-radius: 2px; background: #0d1117; border: 1px solid #30363d; }
+  .l-diamond { width: 9px; height: 9px; background: rgba(251,191,36,0.4); transform: rotate(45deg); border: 1px solid rgba(251,191,36,0.6); border-radius: 1px; }
+  .l-tag { width: 16px; height: 8px; border-radius: 8px; background: rgba(167,139,250,0.3); border: 1px solid rgba(167,139,250,0.5); }
+
+  @keyframes fadeDown { from { opacity:0; transform:translateY(-18px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeUp   { from { opacity:0; transform:translateY(18px);  } to { opacity:1; transform:translateY(0); } }
+
+  @media (max-width: 720px) {
+    .phase-content { grid-template-columns: 1fr; }
+    .context-bar { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 480px) { .context-bar { grid-template-columns: 1fr; } }
+
+  /* ── Back to Portfolio ── */
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-decoration: none;
+    padding: 7px 14px 7px 10px;
+    border: 1px solid rgba(0,212,170,0.25);
+    border-radius: 20px;
+    background: rgba(0,212,170,0.05);
+    margin-bottom: 32px;
+    transition: all 0.2s ease;
+    font-family: 'DM Mono', monospace;
+  }
+  .back-btn:hover {
+    background: rgba(0,212,170,0.12);
+    border-color: rgba(0,212,170,0.55);
+    color: var(--accent);
+    transform: translateX(-3px);
+  }
+  .back-btn svg {
+    width: 12px; height: 12px;
+    stroke: var(--accent);
+    fill: none;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+  .back-btn:hover svg { transform: translateX(-2px); }
+
+  .model-strip { overflow-x: auto; }
+  .model-table { min-width: 640px; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <a class="back-btn" href="index.html#workflows">
+    <svg viewBox="0 0 12 12"><line x1="11" y1="6" x2="1" y2="6"/><polyline points="5,2 1,6 5,10"/></svg>
+    Back to Portfolio
+  </a>
+
+
+  <div class="header">
+    <div class="eyebrow">● UT Austin PGPAIML · Neural Networks Project</div>
+    <h1>ReneWind Predictive Maintenance<br>— Neural Network Solutions Workflow</h1>
+    <p>Applying a structured AI solutions methodology to a wind turbine generator failure problem: comparing seven neural network designs to catch failures before they become costly replacements.</p>
+  </div>
+
+  <!-- Context bar -->
+  <div class="context-bar">
+    <div class="ctx-card">
+      <div class="ctx-label">Client</div>
+      <div class="ctx-val">ReneWind (Wind Energy)</div>
+    </div>
+    <div class="ctx-card">
+      <div class="ctx-label">Problem Type</div>
+      <div class="ctx-val">Binary Classification · Predictive Maintenance</div>
+    </div>
+    <div class="ctx-card">
+      <div class="ctx-label">Model</div>
+      <div class="ctx-val">Feed-Forward Neural Network (Keras)</div>
+    </div>
+    <div class="ctx-card">
+      <div class="ctx-label">Target Variable</div>
+      <div class="ctx-val">Target (0 = No Failure, 1 = Failure)</div>
+    </div>
+  </div>
+
+  <!-- Model comparison strip -->
+  <div class="model-strip">
+    <div class="model-strip-label">Model Comparison Summary — Key Metric: Recall (minimize missed failures)</div>
+    <table class="model-table">
+      <thead>
+        <tr>
+          <th>Model Variant</th>
+          <th>Strategy</th>
+          <th>Imbalance Handling</th>
+          <th>Overfitting Risk</th>
+          <th>Selected?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Model 0</td>
+          <td>1 hidden layer (7 neurons), ReLU, SGD</td>
+          <td>None</td>
+          <td style="color:#fbbf24">Baseline — low capacity</td>
+          <td>Baseline</td>
+        </tr>
+        <tr>
+          <td>Model 1</td>
+          <td>Two hidden layers (64 → 32), SGD</td>
+          <td>None</td>
+          <td style="color:#f87171">Higher — no dropout</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td>Model 2</td>
+          <td>64 → 32 → 16 with 50% dropout, SGD</td>
+          <td>None</td>
+          <td style="color:#fbbf24">Medium — dropout stabilizes</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td class="winner">Model 3 <span class="badge">Top Candidate</span></td>
+          <td>Model 2 architecture + class weights, SGD</td>
+          <td class="winner">Class weights</td>
+          <td style="color:#34d399">Low — dropout + weighted loss</td>
+          <td class="winner">✓ Finalist</td>
+        </tr>
+        <tr>
+          <td>Models 4 &amp; 5</td>
+          <td>Adam optimizer: 64 → 32, and 64 → 32 → 16 with dropout</td>
+          <td>None</td>
+          <td style="color:#fbbf24">Medium — faster convergence</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td class="winner">Model 6 <span class="badge">Top Candidate</span></td>
+          <td>Class-weighted variant, dropout, SGD</td>
+          <td class="winner">Class weights</td>
+          <td style="color:#34d399">Low — dropout + weighted loss</td>
+          <td class="winner">✓ Finalist</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="flow" id="flow"></div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="l-dot" style="background:#22d3ee"></div>Process Step</div>
+    <div class="legend-item"><div class="l-code"></div>Code Reference</div>
+    <div class="legend-item"><div class="l-diamond"></div>Decision Gate</div>
+    <div class="legend-item"><div class="l-tag"></div>Output / Deliverable</div>
+  </div>
+
+</div>
+
+<script>
+const phases = [
+  {
+    num: "01",
+    tag: "Phase One",
+    title: "Requirements Gathering &amp; Business Problem Definition",
+    color: "#22d3ee",
+    pills: ["Stakeholder Context", "Cost Hierarchy", "Data Dictionary"],
+    steps: [
+      "Engage ReneWind, a company using machine learning to improve wind energy machinery, to understand the goal: predict generator failures early enough that turbines can be repaired rather than replaced",
+      "Frame the cost hierarchy: replacement (a missed failure, false negative) costs more than repair (a correct detection, true positive), which costs more than inspection (a false alarm, false positive)",
+      "Review the data: 40 ciphered sensor predictors with 20,000 training and 5,000 test observations, and a binary Target (1 = failure, 0 = no failure)",
+      "Confirm the success metric from a business lens: Recall on the failure class, because accuracy is misleading when failures are the minority",
+      "Agree the data plan: Train.csv for training and tuning, and Test.csv held back for the final best model only"
+    ],
+    code: [
+`<span class="cm"># Load train and test data</span>
+<span class="nm">df</span> = <span class="fn">pd.read_csv</span>(<span class="st">"Train.csv"</span>)
+<span class="nm">df_test</span> = <span class="fn">pd.read_csv</span>(<span class="st">"Test.csv"</span>)
+<span class="nm">data</span> = <span class="nm">df</span>.<span class="fn">copy</span>()  <span class="cm"># never modify raw data</span>`,
+`<span class="cm"># Shape and types of both sets</span>
+<span class="nm">data</span>.<span class="nm">shape</span>, <span class="nm">data_test</span>.<span class="nm">shape</span>
+<span class="nm">data</span>[<span class="st">'Target'</span>] = <span class="nm">data</span>[<span class="st">'Target'</span>].<span class="fn">astype</span>(<span class="nm">float</span>)`
+    ],
+    decisions: [
+      "Which metric reflects the business cost? → Recall: a false negative triggers a full generator replacement, the most expensive outcome",
+      "Can the features be interpreted? → No, the sensor data is ciphered for confidentiality, so modeling relies on the 40 predictors as given"
+    ],
+    outputs: ["Business Problem Statement", "Cost Hierarchy (Replacement > Repair > Inspection)", "Metric Definition: Recall", "Train / Test Data Plan"]
+  },
+  {
+    num: "02",
+    tag: "Phase Two",
+    title: "Problem Framing, Data Quality &amp; EDA",
+    color: "#38bdf8",
+    pills: ["Data Quality", "Univariate EDA", "Class Imbalance"],
+    steps: [
+      "Check shape, data types and statistical summary for both the training and test sets, and convert the Target column to float for neural network compatibility",
+      "Check data quality: no duplicate rows, and missing values only in variables V1 and V2",
+      "Plot a histogram and boxplot for every variable: distributions are skewed with outliers consistent with real sensor data",
+      "Confirm the class imbalance: failures are a small minority of observations, which makes accuracy an unreliable metric",
+      "Run a correlation heatmap across the predictors: no extreme multicollinearity, so all 40 features are retained"
+    ],
+    code: [
+`<span class="cm"># Data quality checks</span>
+<span class="nm">data</span>.<span class="fn">duplicated</span>().<span class="fn">sum</span>()
+<span class="nm">data</span>.<span class="fn">isnull</span>().<span class="fn">sum</span>()  <span class="cm"># only V1 and V2 have gaps</span>`,
+`<span class="cm"># Class balance and correlation</span>
+<span class="nm">df</span>[<span class="st">"Target"</span>].<span class="fn">value_counts</span>(<span class="nm">1</span>)
+<span class="fn">sns.heatmap</span>(<span class="nm">df</span>[<span class="nm">cols_list</span>].<span class="fn">corr</span>(), <span class="nm">annot</span>=<span class="kw">True</span>, <span class="nm">cmap</span>=<span class="st">"Spectral"</span>)`
+    ],
+    decisions: [
+      "Do the missing values need treatment? → Yes, V1 and V2 only, handled with median imputation",
+      "Should outliers be removed? → No: they reflect real sensor behavior, and the neural network is robust to them"
+    ],
+    outputs: ["Data Quality Report", "EDA Findings (distributions, correlation)", "Class Imbalance Assessment", "Feature Retention Decision (all 40 kept)"]
+  },
+  {
+    num: "03",
+    tag: "Phase Three",
+    title: "Solution Mapping — Data Preparation &amp; Model Design",
+    color: "#818cf8",
+    pills: ["Stratified Split", "Median Imputation", "Model Design Matrix"],
+    steps: [
+      "Split the training data 80/20 into training and validation sets, stratified by Target so both keep the same failure rate; Test.csv stays untouched",
+      "Impute V1 and V2 with the median, fitting the imputer on the training data only and applying it to validation and test sets to prevent data leakage",
+      "Design a progression of seven neural networks so each change isolates what drives Recall: a 7-neuron baseline (Model 0), a deeper 64 → 32 network (Model 1), 50% dropout (Model 2), class weights (Model 3), the Adam optimizer in place of SGD (Models 4 and 5), and a second class-weighted variant (Model 6)",
+      "Train every model for 50 epochs with a batch size of 64 and binary cross-entropy loss, so differences come from design rather than training budget",
+      "Compute class weights from the training labels so the loss penalizes misclassified failures more heavily"
+    ],
+    code: [
+`<span class="cm"># Stratified split, then fit imputer on train only</span>
+<span class="nm">X_train</span>, <span class="nm">X_val</span>, <span class="nm">y_train</span>, <span class="nm">y_val</span> = <span class="fn">train_test_split</span>(
+    <span class="nm">X</span>, <span class="nm">y</span>, <span class="nm">test_size</span>=<span class="nm">0.2</span>, <span class="nm">random_state</span>=<span class="nm">1</span>, <span class="nm">stratify</span>=<span class="nm">y</span>)
+<span class="nm">imputer</span> = <span class="fn">SimpleImputer</span>(<span class="nm">strategy</span>=<span class="st">"median"</span>)
+<span class="nm">X_train</span> = <span class="fn">pd.DataFrame</span>(<span class="nm">imputer</span>.<span class="fn">fit_transform</span>(<span class="nm">X_train</span>), <span class="nm">columns</span>=<span class="nm">X_train</span>.<span class="nm">columns</span>)`,
+`<span class="cm"># Model 3: dropout + class weights</span>
+<span class="nm">model_3</span> = <span class="fn">Sequential</span>()
+<span class="nm">model_3</span>.<span class="fn">add</span>(<span class="fn">Dense</span>(<span class="nm">64</span>, <span class="nm">activation</span>=<span class="st">"relu"</span>, <span class="nm">input_dim</span>=<span class="nm">X_train</span>.<span class="nm">shape</span>[<span class="nm">1</span>]))
+<span class="nm">model_3</span>.<span class="fn">add</span>(<span class="fn">Dropout</span>(<span class="nm">0.5</span>))
+<span class="nm">model_3</span>.<span class="fn">add</span>(<span class="fn">Dense</span>(<span class="nm">32</span>, <span class="nm">activation</span>=<span class="st">"relu"</span>))
+<span class="nm">model_3</span>.<span class="fn">add</span>(<span class="fn">Dense</span>(<span class="nm">16</span>, <span class="nm">activation</span>=<span class="st">"relu"</span>))
+<span class="nm">model_3</span>.<span class="fn">add</span>(<span class="fn">Dense</span>(<span class="nm">1</span>, <span class="nm">activation</span>=<span class="st">"sigmoid"</span>))`
+    ],
+    decisions: [
+      "Where should imputation happen? → After the split and fit on the training data only, so validation and test information never leaks into training",
+      "How is the class imbalance addressed? → Class weights penalize misclassifying the minority failure class, and are tested alongside dropout and optimizer choices"
+    ],
+    outputs: ["Train / Validation / Test Splits", "Imputation Step (no leakage)", "Class Weight Dictionary", "Model Design Matrix (Models 0–6)"]
+  },
+  {
+    num: "04",
+    tag: "Phase Four",
+    title: "Model Evaluation &amp; Comparison",
+    color: "#a78bfa",
+    pills: ["Recall Focus", "Classification Reports", "Model Comparison"],
+    steps: [
+      "Score every model on both training and validation data with accuracy, recall, precision and F1, and review classification reports for the failure class",
+      "Compare Models 0 to 6 side by side on training and validation performance, with Recall as the selection criterion",
+      "Findings: models trained with class weights (Models 3 and 6) are the strongest at detecting failures, while models without them tend to underdetect the minority class",
+      "Dropout of 50% after the first hidden layer (Models 2, 3, 5 and 6) narrows the gap between training and validation performance compared with Models 0, 1 and 4",
+      "Adam converges faster than SGD but does not fix the imbalance on its own, so class weighting has the larger impact on Recall"
+    ],
+    code: [
+`<span class="cm"># Compile and train with class weights</span>
+<span class="nm">model_3</span>.<span class="fn">compile</span>(<span class="nm">loss</span>=<span class="st">"binary_crossentropy"</span>, <span class="nm">optimizer</span>=<span class="nm">optimizer</span>)
+<span class="nm">history</span> = <span class="nm">model_3</span>.<span class="fn">fit</span>(<span class="nm">X_train</span>, <span class="nm">y_train</span>, <span class="nm">validation_data</span>=(<span class="nm">X_val</span>, <span class="nm">y_val</span>),
+    <span class="nm">batch_size</span>=<span class="nm">64</span>, <span class="nm">epochs</span>=<span class="nm">50</span>, <span class="nm">class_weight</span>=<span class="nm">cw_dict</span>)`,
+`<span class="cm"># Side-by-side validation comparison</span>
+<span class="nm">models_val_comp_df</span> = <span class="fn">pd.concat</span>([<span class="nm">model_0_val_perf</span>.<span class="nm">T</span>, <span class="nm">model_1_val_perf</span>.<span class="nm">T</span>, <span class="cm"># ... through Model 6</span>], <span class="nm">axis</span>=<span class="nm">1</span>)`
+    ],
+    decisions: [
+      "Which model advances to the test set? → The one with the highest validation Recall; the class-weighted Models 3 and 6 are the top candidates",
+      "Is the model overfitting? → Compare training and validation curves and metrics; dropout is added to close the gap"
+    ],
+    outputs: ["Training and Validation Comparison Tables", "Classification Reports (Models 0–6)", "Finalists: Class-Weighted Models 3 and 6"]
+  },
+  {
+    num: "05",
+    tag: "Phase Five",
+    title: "Insights &amp; Business Recommendations",
+    color: "#34d399",
+    pills: ["Test Evaluation", "Threshold Tuning", "Predictive Maintenance"],
+    steps: [
+      "Run the selected model once on the held-out Test.csv (5,000 observations) to confirm it generalizes to unseen turbines",
+      "Final architecture: Input (40 features) → Dense 64 (ReLU) → Dropout 50% → Dense 32 → Dense 16 → Dense 1 (sigmoid), trained with SGD, binary cross-entropy and class weights",
+      "Recommend a production threshold below the default 0.5, such as 0.3 to 0.4: it catches more real failures at the cost of more inspections, which is the preferable trade-off given inspection is the cheapest outcome",
+      "Deploy the model into ReneWind\u2019s monitoring pipeline to flag high-risk turbines, shifting from reactive to predictive maintenance, and rank turbines by predicted failure probability so crews visit the highest-risk units first",
+      "Sustain the solution: retrain as sensor patterns shift with turbine aging, and invest in sensor data quality, since V1 and V2 had missing values"
+    ],
+    code: [
+`<span class="cm"># Final check on the held-out test set</span>
+<span class="nm">best_model_test_perf</span> = <span class="fn">model_performance_classification</span>(<span class="nm">best_model</span>, <span class="nm">X_test</span>, <span class="nm">y_test</span>)
+<span class="nm">y_test_pred_best</span> = <span class="nm">best_model</span>.<span class="fn">predict</span>(<span class="nm">X_test</span>)`,
+`<span class="cm"># Lower threshold to favor Recall</span>
+<span class="nm">y_pred</span> = (<span class="nm">y_test_pred_best</span> &gt; <span class="nm">0.3</span>)
+<span class="fn">print</span>(<span class="fn">classification_report</span>(<span class="nm">y_test</span>, <span class="nm">y_pred</span>))`
+    ],
+    decisions: [
+      "What threshold should production use? → Below 0.5 (for example 0.3 to 0.4): a false alarm costs an inspection, while a miss costs a full replacement",
+      "How do we keep the model accurate over time? → Establish a retraining pipeline so the model keeps up as sensor patterns drift"
+    ],
+    outputs: ["Test-Set Performance Report", "Production Threshold Recommendation", "Risk-Ranked Maintenance Prioritization", "Retraining &amp; Data-Quality Roadmap"]
+  }
+];
+
+const connectors = [
+  { from: '#22d3ee', to: '#38bdf8' },
+  { from: '#38bdf8', to: '#818cf8' },
+  { from: '#818cf8', to: '#a78bfa' },
+  { from: '#a78bfa', to: '#34d399' },
+];
+
+const flow = document.getElementById('flow');
+
+phases.forEach((phase, i) => {
+  const phaseEl = document.createElement('div');
+  phaseEl.className = 'phase';
+  phaseEl.innerHTML = `
+    <div class="phase-card" style="--phase-color:${phase.color}" id="phase-${i}">
+      <div class="phase-header">
+        <div class="phase-num">${phase.num}</div>
+        <div class="phase-title-block">
+          <div class="phase-tag">${phase.tag}</div>
+          <div class="phase-title">${phase.title}</div>
+          <div class="phase-pills">${phase.pills.map(p => `<span class="phase-pill">${p}</span>`).join('')}</div>
+        </div>
+        <div class="phase-toggle">
+          <svg viewBox="0 0 12 12"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+        </div>
+      </div>
+
+      <div class="phase-body">
+        <div class="phase-body-inner">
+          <div class="divider"></div>
+          <div class="phase-content">
+            <div>
+              <div class="section-label">Process Steps</div>
+              ${phase.steps.map(s => `<div class="substep"><div class="substep-dot"></div><span>${s}</span></div>`).join('')}
+            </div>
+            <div>
+              <div class="section-label">Code Reference</div>
+              ${phase.code.map(c => `<div class="code-block">${c}</div>`).join('')}
+              <div style="height:14px"></div>
+              <div class="section-label">Decision Gates</div>
+              ${phase.decisions.map(d => `<div class="decision"><div class="d-icon">◆</div><span>${d}</span></div>`).join('')}
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="output-row">
+            <div class="section-label">Phase Outputs & Deliverables</div>
+            <div class="output-tags">${phase.outputs.map(o => `<span class="output-tag">→ ${o}</span>`).join('')}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  phaseEl.querySelector('.phase-card').addEventListener('click', function () {
+    const isOpen = this.classList.contains('open');
+    document.querySelectorAll('.phase-card').forEach(c => c.classList.remove('open'));
+    if (!isOpen) this.classList.add('open');
+  });
+
+  flow.appendChild(phaseEl);
+
+  if (i < phases.length - 1) {
+    const c = connectors[i];
+    const conn = document.createElement('div');
+    conn.className = 'connector';
+    conn.innerHTML = `
+      <div class="connector-line" style="--from-color:${c.from};--to-color:${c.to}"></div>
+      <div class="connector-arrow" style="--to-color:${c.to}"></div>
+    `;
+    flow.appendChild(conn);
+  }
+});
+
+document.getElementById('phase-0').classList.add('open');
+</script>
+</body>
+</html>

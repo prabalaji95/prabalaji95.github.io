@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SuperKart Sales Forecasting – AI Solutions Workflow</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080a0f;
+    --surface: #10131a;
+    --card: #181c28;
+    --border: #222736;
+    --text: #e4e8f0;
+    --muted: #64748b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(108,99,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(108,99,255,0.03) 1px, transparent 1px);
+    background-size: 44px 44px;
+    pointer-events: none; z-index: 0;
+  }
+
+  .wrapper {
+    position: relative; z-index: 1;
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 52px 24px 96px;
+  }
+
+  /* ── Header ── */
+  .header { text-align: center; margin-bottom: 16px; animation: fadeDown 0.7s ease both; }
+
+  .header .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 10px; letter-spacing: 0.28em;
+    color: #a78bfa; text-transform: uppercase;
+    margin-bottom: 16px; padding: 6px 16px;
+    border: 1px solid rgba(167,139,250,0.25); border-radius: 20px;
+    background: rgba(167,139,250,0.06);
+  }
+
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 4vw, 44px);
+    font-weight: 700; line-height: 1.1;
+    background: linear-gradient(130deg, #fff 20%, #c4b5fd 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin-bottom: 12px;
+  }
+
+  .header p { color: var(--muted); font-size: 12px; max-width: 620px; margin: 0 auto; line-height: 1.7; }
+
+  /* ── Context bar ── */
+  .context-bar {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 12px; margin: 32px 0 48px;
+    animation: fadeUp 0.6s ease 0.1s both;
+  }
+
+  .ctx-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 18px;
+    position: relative; overflow: hidden;
+  }
+
+  .ctx-card::after {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, #6c63ff, #a78bfa);
+    opacity: 0.6;
+  }
+
+  .ctx-label { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .ctx-val { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 12.5px; color: var(--text); line-height: 1.35; }
+
+  /* ── Model comparison table ── */
+  .model-strip {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px 24px;
+    margin-bottom: 36px;
+    animation: fadeUp 0.6s ease 0.15s both;
+  }
+
+  .model-strip-label {
+    font-size: 9.5px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  .model-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .model-table th {
+    text-align: left; padding: 7px 12px;
+    color: var(--muted); font-weight: 400;
+    border-bottom: 1px solid var(--border);
+    font-size: 10px; letter-spacing: 0.1em;
+  }
+  .model-table td { padding: 8px 12px; border-bottom: 1px solid rgba(34,39,54,0.6); }
+  .model-table tr:last-child td { border-bottom: none; }
+  .model-table .winner { color: #34d399; font-weight: 500; }
+  .model-table .badge {
+    display: inline-block; padding: 2px 8px;
+    border-radius: 10px; font-size: 9px;
+    background: rgba(52,211,153,0.12);
+    border: 1px solid rgba(52,211,153,0.3);
+    color: #34d399; margin-left: 6px;
+  }
+  .model-table .badge-warn {
+    background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.3); color: #fbbf24;
+  }
+
+  /* ── Flow ── */
+  .flow { display: flex; flex-direction: column; }
+
+  .phase { animation: fadeUp 0.55s ease both; }
+  .phase:nth-child(1) { animation-delay: 0.1s; }
+  .phase:nth-child(2) { animation-delay: 0.18s; }
+  .phase:nth-child(3) { animation-delay: 0.26s; }
+  .phase:nth-child(4) { animation-delay: 0.34s; }
+  .phase:nth-child(5) { animation-delay: 0.42s; }
+
+  .phase-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; cursor: pointer;
+    transition: all 0.28s ease; position: relative; overflow: hidden;
+  }
+
+  .phase-card::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 4px; background: var(--phase-color);
+    transition: width 0.28s ease;
+  }
+
+  .phase-card:hover { border-color: var(--phase-color); transform: translateX(5px); box-shadow: -5px 0 28px rgba(0,0,0,0.4), 0 0 36px -12px var(--phase-color); }
+  .phase-card:hover::before, .phase-card.open::before { width: 6px; }
+  .phase-card.open { border-color: var(--phase-color); box-shadow: 0 0 38px -12px var(--phase-color); }
+
+  .phase-header { display: flex; align-items: center; gap: 16px; padding: 24px 28px; }
+
+  .phase-num {
+    width: 42px; height: 42px; border-radius: 10px;
+    background: var(--phase-color);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif; font-weight: 700; font-size: 15px;
+    color: #000; flex-shrink: 0;
+  }
+
+  .phase-title-block { flex: 1; }
+  .phase-tag { font-size: 9.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--phase-color); margin-bottom: 4px; }
+  .phase-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 16px; color: var(--text); }
+  .phase-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+  .phase-pill {
+    font-size: 10px; padding: 3px 9px; border-radius: 12px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    color: var(--muted); transition: all 0.2s;
+  }
+  .phase-card:hover .phase-pill, .phase-card.open .phase-pill { border-color: var(--phase-color); color: var(--text); background: rgba(255,255,255,0.06); }
+
+  .phase-toggle {
+    width: 30px; height: 30px; border-radius: 7px;
+    border: 1px solid var(--border); background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.28s ease; flex-shrink: 0;
+  }
+  .phase-card.open .phase-toggle { background: var(--phase-color); border-color: var(--phase-color); transform: rotate(45deg); }
+  .phase-toggle svg { width: 11px; height: 11px; stroke: var(--muted); fill: none; transition: stroke 0.2s; }
+  .phase-card:hover .phase-toggle svg { stroke: var(--text); }
+  .phase-card.open .phase-toggle svg { stroke: #000; }
+
+  .phase-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.4s ease; }
+  .phase-card.open .phase-body { grid-template-rows: 1fr; }
+  .phase-body-inner { overflow: hidden; }
+
+  .divider { height: 1px; background: var(--border); margin: 0 28px; }
+
+  .phase-content {
+    padding: 20px 28px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .section-label { font-size: 9.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+
+  .substep {
+    display: flex; align-items: flex-start; gap: 9px;
+    padding: 9px 12px; background: var(--surface); border-radius: 8px;
+    margin-bottom: 7px; border: 1px solid var(--border);
+    font-size: 11px; line-height: 1.55; transition: border-color 0.2s;
+  }
+  .substep:hover { border-color: var(--phase-color); }
+  .substep-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--phase-color); margin-top: 4px; flex-shrink: 0; }
+
+  .code-block {
+    background: #0d1117; border: 1px solid #30363d; border-radius: 8px;
+    padding: 10px 13px; margin-bottom: 7px; font-size: 10.5px;
+    line-height: 1.65; color: #79c0ff; overflow-x: auto; white-space: pre;
+  }
+  .cm { color: #8b949e; }
+  .kw { color: #ff7b72; }
+  .fn { color: #d2a8ff; }
+  .st { color: #a5d6ff; }
+  .nm { color: #79c0ff; }
+  .op { color: #f0883e; }
+
+  .decision {
+    display: flex; align-items: flex-start; gap: 9px;
+    padding: 9px 12px; background: rgba(251,191,36,0.05);
+    border: 1px solid rgba(251,191,36,0.18); border-radius: 8px;
+    margin-bottom: 7px; font-size: 11px; line-height: 1.55;
+  }
+  .d-icon { font-size: 11px; flex-shrink: 0; margin-top: 2px; color: #fbbf24; }
+
+  .output-row { padding: 14px 28px 22px; }
+  .output-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+  .output-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 12px; background: rgba(167,139,250,0.08);
+    border: 1px solid rgba(167,139,250,0.22); border-radius: 20px;
+    font-size: 11px; color: #a78bfa;
+  }
+
+  /* Connector */
+  .connector { display: flex; flex-direction: column; align-items: center; padding: 4px 0; }
+  .connector-line { width: 2px; height: 22px; background: linear-gradient(to bottom, var(--from-color), var(--to-color)); }
+  .connector-arrow { width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 8px solid var(--to-color); }
+
+  /* Legend */
+  .legend { display: flex; justify-content: center; gap: 28px; margin-top: 52px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); }
+  .l-dot { width: 8px; height: 8px; border-radius: 2px; }
+  .l-code { width: 16px; height: 8px; border-radius: 2px; background: #0d1117; border: 1px solid #30363d; }
+  .l-diamond { width: 9px; height: 9px; background: rgba(251,191,36,0.4); transform: rotate(45deg); border: 1px solid rgba(251,191,36,0.6); border-radius: 1px; }
+  .l-tag { width: 16px; height: 8px; border-radius: 8px; background: rgba(167,139,250,0.3); border: 1px solid rgba(167,139,250,0.5); }
+
+  @keyframes fadeDown { from { opacity:0; transform:translateY(-18px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeUp   { from { opacity:0; transform:translateY(18px);  } to { opacity:1; transform:translateY(0); } }
+
+  @media (max-width: 720px) {
+    .phase-content { grid-template-columns: 1fr; }
+    .context-bar { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 480px) { .context-bar { grid-template-columns: 1fr; } }
+
+  /* ── Back to Portfolio ── */
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-decoration: none;
+    padding: 7px 14px 7px 10px;
+    border: 1px solid rgba(0,212,170,0.25);
+    border-radius: 20px;
+    background: rgba(0,212,170,0.05);
+    margin-bottom: 32px;
+    transition: all 0.2s ease;
+    font-family: 'DM Mono', monospace;
+  }
+  .back-btn:hover {
+    background: rgba(0,212,170,0.12);
+    border-color: rgba(0,212,170,0.55);
+    color: var(--accent);
+    transform: translateX(-3px);
+  }
+  .back-btn svg {
+    width: 12px; height: 12px;
+    stroke: var(--accent);
+    fill: none;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+  .back-btn:hover svg { transform: translateX(-2px); }
+
+  .model-strip { overflow-x: auto; }
+  .model-table { min-width: 640px; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <a class="back-btn" href="index.html#workflows">
+    <svg viewBox="0 0 12 12"><line x1="11" y1="6" x2="1" y2="6"/><polyline points="5,2 1,6 5,10"/></svg>
+    Back to Portfolio
+  </a>
+
+
+  <div class="header">
+    <div class="eyebrow">● UT Austin PGPAIML · Machine Learning &amp; Deployment Project</div>
+    <h1>SuperKart Sales Forecasting<br>— ML Solutions Workflow</h1>
+    <p>Applying a structured AI solutions methodology to a quarterly sales forecasting problem: building tuned ensemble regression models and deploying the best one as a live Flask and Streamlit application.</p>
+  </div>
+
+  <!-- Context bar -->
+  <div class="context-bar">
+    <div class="ctx-card">
+      <div class="ctx-label">Client</div>
+      <div class="ctx-val">SuperKart (Retail Chain)</div>
+    </div>
+    <div class="ctx-card">
+      <div class="ctx-label">Problem Type</div>
+      <div class="ctx-val">Regression · Sales Forecasting</div>
+    </div>
+    <div class="ctx-card">
+      <div class="ctx-label">Model</div>
+      <div class="ctx-val">XGBoost (Tuned) · Random Forest</div>
+    </div>
+    <div class="ctx-card">
+      <div class="ctx-label">Target Variable</div>
+      <div class="ctx-val">Product_Store_Sales_Total (₹)</div>
+    </div>
+  </div>
+
+  <!-- Model comparison strip -->
+  <div class="model-strip">
+    <div class="model-strip-label">Model Comparison Summary — Key Metrics: R² and RMSE (forecast accuracy on unseen data)</div>
+    <table class="model-table">
+      <thead>
+        <tr>
+          <th>Model Variant</th>
+          <th>Strategy</th>
+          <th>Test Performance</th>
+          <th>Generalization</th>
+          <th>Selected?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Random Forest (baseline)</td>
+          <td>One-hot pipeline + default Random Forest</td>
+          <td>R² ≈ 0.67 · RMSE ≈ ₹616</td>
+          <td>Stable train / test behavior</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td>XGBoost (baseline)</td>
+          <td>Same pipeline + default XGBoost</td>
+          <td>R² ≈ 0.67 · RMSE ≈ ₹616</td>
+          <td>Stable train / test behavior</td>
+          <td>Candidate</td>
+        </tr>
+        <tr>
+          <td>Random Forest (tuned)</td>
+          <td>3-fold GridSearchCV · depth 5, sqrt features, 200 trees</td>
+          <td>R² ≈ 0.67 · RMSE essentially tied with XGBoost</td>
+          <td>Stable — tuning barely moved results</td>
+          <td>Runner-up</td>
+        </tr>
+        <tr>
+          <td class="winner">XGBoost (Tuned) <span class="badge">Deployed</span></td>
+          <td>3-fold GridSearchCV · n_estimators=100, subsample=0.7, colsample_bytree=1.0, colsample_bylevel=0.7, gamma=0</td>
+          <td>R² 0.668 · RMSE ₹616.11 · MAPE 18.7%</td>
+          <td style="color:#34d399">Low — train R² 0.685 vs test R² 0.668</td>
+          <td class="winner">✓ Final Model</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="flow" id="flow"></div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="l-dot" style="background:#fb7185"></div>Process Step</div>
+    <div class="legend-item"><div class="l-code"></div>Code Reference</div>
+    <div class="legend-item"><div class="l-diamond"></div>Decision Gate</div>
+    <div class="legend-item"><div class="l-tag"></div>Output / Deliverable</div>
+  </div>
+
+</div>
+
+<script>
+const phases = [
+  {
+    num: "01",
+    tag: "Phase One",
+    title: "Requirements Gathering &amp; Business Problem Definition",
+    color: "#fb7185",
+    pills: ["Stakeholder Context", "Business Objective", "Data Dictionary"],
+    steps: [
+      "Engage SuperKart, a retail chain running supermarkets and food marts across tier cities, to understand the need: an accurate quarterly sales forecast to guide inventory, procurement, and regional sales strategy",
+      "Define the business goal: forecast quarterly sales revenue per product per store, and deploy the model as a solution the business can use in real time, not just a notebook result",
+      "Review the 12-column dataset of 8,763 product-store records: product attributes (type, MRP, weight, sugar content, allocated display area) and store attributes (size, city tier, format, year established)",
+      "Confirm the target variable: Product_Store_Sales_Total, the quarterly revenue of each product at each store, a continuous value that makes this a regression problem",
+      "Set success criteria: R², RMSE, MAE and MAPE on held-out data, plus a working end-to-end deployed application"
+    ],
+    code: [
+`<span class="cm"># Load and preserve original data</span>
+<span class="nm">kart</span> = <span class="fn">pd.read_csv</span>(<span class="st">"SuperKart.csv"</span>)
+<span class="nm">data</span> = <span class="nm">kart</span>.<span class="fn">copy</span>()  <span class="cm"># never modify raw data</span>
+<span class="nm">data</span>.<span class="fn">head</span>()`,
+`<span class="cm"># Structural overview</span>
+<span class="nm">data</span>.<span class="nm">shape</span>    <span class="cm"># rows × columns</span>
+<span class="nm">data</span>.<span class="fn">info</span>()   <span class="cm"># data types, nulls</span>
+<span class="nm">data</span>.<span class="fn">duplicated</span>().<span class="fn">sum</span>()  <span class="cm"># duplicate check</span>`
+    ],
+    decisions: [
+      "Is this a classification or regression problem? → The target is a continuous revenue value, so regression metrics (R², RMSE, MAE, MAPE) replace recall and precision",
+      "Is the data complete enough to model? → 8,763 records across 12 columns with no missing values or duplicates, so no imputation is needed"
+    ],
+    outputs: ["Business Problem Statement", "Target Variable Definition", "Feature Inventory (12 columns)", "Evaluation Metric Plan (R², RMSE, MAE, MAPE)"]
+  },
+  {
+    num: "02",
+    tag: "Phase Two",
+    title: "Problem Framing, EDA &amp; Feature Engineering",
+    color: "#f97316",
+    pills: ["Exploratory Analysis", "Feature Engineering", "Outlier Check"],
+    steps: [
+      "Run univariate analysis on every numeric and categorical column: product weight, allocated area, MRP, sales total, sugar content, product type, and store attributes",
+      "Analyze store performance: OUT004 (Supermarket Type 2, medium, Tier 2) leads at roughly ₹15.4M while OUT002 (a small Food Mart in Tier 3) trails at about ₹2M, so store format matters more than store size",
+      "Identify sales drivers: Fruits &amp; Vegetables and Snack Foods lead revenue in every store, higher Product MRP consistently drives higher sales, and sugar content and item visibility have little impact",
+      "Clean the data: merge the duplicate sugar-content labels (reg and Regular) into a single Regular category",
+      "Engineer features: compute Store_Age_Years from the establishment year, and group the 16 product types into Perishables and Non-Perishables to simplify the category signal",
+      "Review every numeric feature with boxplots to check for outliers that would need treatment"
+    ],
+    code: [
+`<span class="cm"># Fix inconsistent category label</span>
+<span class="nm">data</span>[<span class="st">"Product_Sugar_Content"</span>] = <span class="nm">data</span>[<span class="st">"Product_Sugar_Content"</span>].<span class="fn">replace</span>(<span class="st">"reg"</span>, <span class="st">"Regular"</span>)`,
+`<span class="cm"># Engineered features</span>
+<span class="nm">data</span>[<span class="st">"Store_Age_Years"</span>] = <span class="nm">2025</span> - <span class="nm">data</span>.<span class="nm">Store_Establishment_Year</span>
+<span class="nm">data</span>[<span class="st">"Product_Type_Category"</span>] = <span class="nm">data</span>[<span class="st">"Product_Type"</span>].<span class="fn">apply</span>(<span class="nm">change</span>)  <span class="cm"># Perishables / Non Perishables</span>`
+    ],
+    decisions: [
+      "Are the sugar-content labels distinct categories? → No, reg and Regular describe the same category, so they are merged to avoid splitting the encoding",
+      "Do any numeric features need outlier treatment? → Boxplot review found no extreme outliers, so no records were removed or capped"
+    ],
+    outputs: ["EDA Findings (store, product and city-tier drivers)", "Engineered Features (Store_Age_Years, Product_Type_Category)", "Cleaned Modeling Dataset"]
+  },
+  {
+    num: "03",
+    tag: "Phase Three",
+    title: "Solution Mapping — Preprocessing Pipeline &amp; Model Building",
+    color: "#fbbf24",
+    pills: ["Train / Test Split", "One-Hot Pipeline", "Random Forest &amp; XGBoost"],
+    steps: [
+      "Drop identifier and redundant columns (Product_Id, Store_Id, Store_Establishment_Year) that add no predictive value beyond the engineered features",
+      "Split the data 70:30 into training and test sets so performance is measured on unseen records",
+      "Build a preprocessing pipeline with one-hot encoding for all categorical features",
+      "Choose tree-based ensembles because they handle a mix of categorical and numeric features well without feature scaling",
+      "Train Random Forest and XGBoost regressors, each wrapped in a pipeline with the preprocessor so raw inputs are encoded identically at training and inference time",
+      "Record the baselines: both models reach a test R² of about 0.67 and RMSE of about ₹616, an average error of roughly 19% of actual sales"
+    ],
+    code: [
+`<span class="cm"># 70:30 split</span>
+<span class="nm">X_train</span>, <span class="nm">X_test</span>, <span class="nm">y_train</span>, <span class="nm">y_test</span> = <span class="fn">train_test_split</span>(
+    <span class="nm">X</span>, <span class="nm">y</span>, <span class="nm">test_size</span>=<span class="nm">0.3</span>, <span class="nm">random_state</span>=<span class="nm">1</span>, <span class="nm">shuffle</span>=<span class="kw">True</span>)`,
+`<span class="cm"># Preprocessing + model in one pipeline</span>
+<span class="nm">preprocessor</span> = <span class="fn">make_column_transformer</span>(
+    (<span class="fn">Pipeline</span>([(<span class="st">"encoder"</span>, <span class="fn">OneHotEncoder</span>(<span class="nm">handle_unknown</span>=<span class="st">"ignore"</span>))]), <span class="nm">categorical_features</span>))
+<span class="nm">xgb_estimator</span> = <span class="fn">make_pipeline</span>(<span class="nm">preprocessor</span>, <span class="fn">XGBRegressor</span>(<span class="nm">random_state</span>=<span class="nm">1</span>))`
+    ],
+    decisions: [
+      "Which model families fit this data? → Tree ensembles, since they handle mixed categorical and numeric features without scaling",
+      "Do the two baselines differ materially? → No, both score a test R² of about 0.67, so both advance to hyperparameter tuning"
+    ],
+    outputs: ["Preprocessing Pipeline (one-hot encoding)", "Random Forest &amp; XGBoost Baselines", "Baseline Performance Comparison"]
+  },
+  {
+    num: "04",
+    tag: "Phase Four",
+    title: "Model Evaluation, Tuning &amp; Selection",
+    color: "#a3e635",
+    pills: ["GridSearchCV", "Regression Metrics", "Model Selection"],
+    steps: [
+      "Evaluate every model with R², Adjusted R², RMSE, MAE and MAPE on both the training and test sets to check generalization",
+      "Run 3-fold GridSearchCV on both models, optimizing R²: the Random Forest grid covers tree depth, feature sampling and estimator count (best: depth 5, sqrt features, 200 trees), and the XGBoost grid covers estimators, subsample ratio, gamma and column sampling",
+      "Observe that tuning barely moved performance: test R² held at about 0.67 for both models, so the feature set is the limit and further gains would likely come from new features rather than more tuning",
+      "Select the tuned XGBoost model: test R² 0.668, RMSE ₹616.11, MAE ₹485.11 and MAPE 18.7%, against a training R² of 0.685",
+      "Serialize the tuned model together with its preprocessing pipeline so the deployed app reproduces training-time encoding exactly"
+    ],
+    code: [
+`<span class="cm"># Hyperparameter search (3-fold, optimizing R²)</span>
+<span class="nm">grid</span> = <span class="fn">GridSearchCV</span>(<span class="nm">xgb_tuned</span>, <span class="nm">param_grid</span>, <span class="nm">scoring</span>=<span class="st">"r2"</span>, <span class="nm">cv</span>=<span class="nm">3</span>)
+<span class="nm">grid</span>.<span class="fn">fit</span>(<span class="nm">X_train</span>, <span class="nm">y_train</span>)
+<span class="nm">best_model</span> = <span class="nm">grid</span>.<span class="nm">best_estimator_</span>`,
+`<span class="cm"># Serialize pipeline + model together</span>
+<span class="fn">joblib.dump</span>(<span class="nm">best_model</span>, <span class="st">"backend_files/superkart_model.joblib"</span>)`
+    ],
+    decisions: [
+      "Did tuning materially improve the models? → No, R² stayed near 0.67 before and after, so the decision rests on generalization and deployment fit rather than a large accuracy gap",
+      "Is the final model overfitting? → Train R² 0.685 against test R² 0.668 and MAPE of 16.6% against 18.7% is a small, acceptable gap"
+    ],
+    outputs: ["Model Comparison Table (train vs test)", "Final Model: Tuned XGBoost (Test R² 0.668, RMSE ₹616.11)", "Serialized Pipeline (joblib)"]
+  },
+  {
+    num: "05",
+    tag: "Phase Five",
+    title: "Deployment, Insights &amp; Business Recommendations",
+    color: "#34d399",
+    pills: ["Flask API", "Streamlit App", "Hugging Face Spaces"],
+    steps: [
+      "Serve the serialized pipeline through a Flask REST API (a /v1/predict endpoint) run with Gunicorn inside a Docker container",
+      "Build a Streamlit web app that collects product and store inputs and calls the API in real time",
+      "Host both pieces as two Docker Spaces on Hugging Face (superkart-backend and superkart-frontend)",
+      "Verify end to end: a sample Tier 1 supermarket product returned an instant forecast of ₹2,694.09 in quarterly sales for the default inputs",
+      "Translate findings into recommendations: expand Supermarket Type 2 stores in Tier 2 cities, give more shelf space to Fruits &amp; Vegetables and Snack Foods, stock higher-MRP products in Tier 1 and Tier 2, and reconsider the Food Mart format in Tier 3",
+      "Run the forecasting model quarterly to optimize inventory and stay ahead of demand"
+    ],
+    code: [
+`<span class="cm"># Backend container entrypoint</span>
+<span class="kw">CMD</span> [<span class="st">"gunicorn"</span>, <span class="st">"-w"</span>, <span class="st">"4"</span>, <span class="st">"-b"</span>, <span class="st">"0.0.0.0:7860"</span>, <span class="st">"app:superkart_api"</span>]`,
+`<span class="cm"># Streamlit frontend calls the live API</span>
+<span class="nm">response</span> = <span class="fn">requests.post</span>(<span class="st">".../v1/predict"</span>, <span class="nm">json</span>=<span class="nm">product_data</span>)
+<span class="nm">predicted_sales</span> = <span class="nm">response</span>.<span class="fn">json</span>()[<span class="st">"Sales"</span>]`
+    ],
+    decisions: [
+      "How will teams use the forecast? → Through a real-time web app backed by a REST API, so any internal system can also request forecasts",
+      "How often should the forecast run? → Quarterly, matching the planning cycle for inventory and procurement"
+    ],
+    outputs: ["Live Forecasting App (Flask API + Streamlit UI)", "Dockerized Deployment on Hugging Face", "Business Recommendations", "Quarterly Forecasting Process"]
+  }
+];
+
+const connectors = [
+  { from: '#fb7185', to: '#f97316' },
+  { from: '#f97316', to: '#fbbf24' },
+  { from: '#fbbf24', to: '#a3e635' },
+  { from: '#a3e635', to: '#34d399' },
+];
+
+const flow = document.getElementById('flow');
+
+phases.forEach((phase, i) => {
+  const phaseEl = document.createElement('div');
+  phaseEl.className = 'phase';
+  phaseEl.innerHTML = `
+    <div class="phase-card" style="--phase-color:${phase.color}" id="phase-${i}">
+      <div class="phase-header">
+        <div class="phase-num">${phase.num}</div>
+        <div class="phase-title-block">
+          <div class="phase-tag">${phase.tag}</div>
+          <div class="phase-title">${phase.title}</div>
+          <div class="phase-pills">${phase.pills.map(p => `<span class="phase-pill">${p}</span>`).join('')}</div>
+        </div>
+        <div class="phase-toggle">
+          <svg viewBox="0 0 12 12"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+        </div>
+      </div>
+
+      <div class="phase-body">
+        <div class="phase-body-inner">
+          <div class="divider"></div>
+          <div class="phase-content">
+            <div>
+              <div class="section-label">Process Steps</div>
+              ${phase.steps.map(s => `<div class="substep"><div class="substep-dot"></div><span>${s}</span></div>`).join('')}
+            </div>
+            <div>
+              <div class="section-label">Code Reference</div>
+              ${phase.code.map(c => `<div class="code-block">${c}</div>`).join('')}
+              <div style="height:14px"></div>
+              <div class="section-label">Decision Gates</div>
+              ${phase.decisions.map(d => `<div class="decision"><div class="d-icon">◆</div><span>${d}</span></div>`).join('')}
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="output-row">
+            <div class="section-label">Phase Outputs & Deliverables</div>
+            <div class="output-tags">${phase.outputs.map(o => `<span class="output-tag">→ ${o}</span>`).join('')}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  phaseEl.querySelector('.phase-card').addEventListener('click', function () {
+    const isOpen = this.classList.contains('open');
+    document.querySelectorAll('.phase-card').forEach(c => c.classList.remove('open'));
+    if (!isOpen) this.classList.add('open');
+  });
+
+  flow.appendChild(phaseEl);
+
+  if (i < phases.length - 1) {
+    const c = connectors[i];
+    const conn = document.createElement('div');
+    conn.className = 'connector';
+    conn.innerHTML = `
+      <div class="connector-line" style="--from-color:${c.from};--to-color:${c.to}"></div>
+      <div class="connector-arrow" style="--to-color:${c.to}"></div>
+    `;
+    flow.appendChild(conn);
+  }
+});
+
+document.getElementById('phase-0').classList.add('open');
+</script>
+</body>
+</html>
